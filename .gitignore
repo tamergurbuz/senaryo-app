@@ -1,0 +1,5 @@
+venv/
+senaryo.db
+__pycache__/
+*.pyc
+.DS_Store
