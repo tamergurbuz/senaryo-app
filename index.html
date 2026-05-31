@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senaryo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { darkMode: 'class' }
+</script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, sans-serif; }
+
+  /* Senaryo blok stilleri — Hollywood standardı */
+  .blok { display: block; width: 100%; border: none; outline: none; resize: none;
+          background: transparent; font-family: 'Courier New', 'Courier', monospace;
+          font-size: 13pt; line-height: 1.5; padding: 4px 6px;
+          color: #1c1917; caret-color: #f59e0b;
+          min-height: 24px; overflow: hidden; }
+  .dark .blok { color: #f5f5f4; }
+  .blok::placeholder { color: #a8a29e; opacity: 0.6; }
+  .blok-satir { position: relative; min-height: 28px; }
+  .blok:focus { background: rgba(245,158,11,0.06); border-radius: 4px; }
+  .dark .blok:focus { background: rgba(245,158,11,0.12); }
+
+  .blok-sahne    { text-transform: uppercase; font-weight: 700; margin-top: 16px; color:#92400e; box-sizing: border-box; }
+  .blok-aksiyon  { margin: 8px 0; box-sizing: border-box; }
+  .blok-karakter { text-transform: uppercase; font-weight: 600; margin-top: 12px;
+                   margin-left: 36%; width: 64%; color:#5b21b6; box-sizing: border-box; }
+  .blok-parantez { margin-left: 28%; width: 60%; font-style: italic; color: #78716c; box-sizing: border-box; }
+  .blok-diyalog  { margin-left: 18%; width: 64%; box-sizing: border-box; }
+  .blok-gecis    { text-transform: uppercase; font-weight: 600; text-align: right; color:#1e40af; box-sizing: border-box; }
+  .blok-not      { background: #fef3c7; padding: 6px 8px !important; border-radius: 4px;
+                   font-style: italic; color: #92400e; box-sizing: border-box; }
+  .dark .blok-sahne { color:#fcd34d; }
+  .dark .blok-karakter { color:#c4b5fd; }
+  .dark .blok-gecis { color:#93c5fd; }
+  .dark .blok-not { background:#422006; color:#fcd34d; }
+
+  /* Blok satırı (silme butonu için) */
+  .blok-sil { position: absolute; left: -28px; top: 2px; opacity: 0;
+              font-size: 14px; color:#a8a29e; cursor:pointer; }
+  .blok-satir:hover .blok-sil { opacity: 1; }
+  .blok-tip-rozet { position: absolute; right: -64px; top: 8px; font-size: 10px;
+                    text-transform: uppercase; color:#a8a29e; opacity: 0;
+                    transition: opacity .15s; letter-spacing: 0.5px; }
+  .blok-satir:focus-within .blok-tip-rozet { opacity: 1; }
+
+  /* Sekme stilleri */
+  .sekme { border-bottom: 2px solid transparent; transition: all .15s; cursor: pointer; }
+  .sekme.aktif { border-color: #f59e0b; color: #92400e; }
+  .dark .sekme.aktif { color: #fcd34d; }
+
+  /* Cards grid */
+  .kart {
+    background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+    border: 1px solid #fde68a;
+    transition: transform .12s, box-shadow .12s;
+  }
+  .kart:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+  .dark .kart { background: linear-gradient(180deg, #422006 0%, #292524 100%);
+                border-color: #78350f; }
+
+  .taslak-indikator { opacity: 0; transition: opacity .3s; font-size: 11px; color:#78716c; }
+  .taslak-indikator.gorunur { opacity: 1; }
+
+  .uzanti-btn {
+    position: absolute; right: 8px; top: 14px;
+    font-size: 10px; padding: 2px 6px;
+    border: 1px dashed #d6d3d1; border-radius: 4px;
+    color: #a8a29e; background: transparent;
+    opacity: 0; transition: opacity .15s;
+    cursor: pointer; font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+  .dark .uzanti-btn { border-color: #57534e; color: #a8a29e; }
+  .blok-satir:hover .uzanti-btn,
+  .blok-satir:focus-within .uzanti-btn { opacity: 1; }
+  .uzanti-btn:hover { color: #92400e; border-color: #f59e0b; border-style: solid; }
+  .dark .uzanti-btn:hover { color: #fcd34d; border-color: #f59e0b; }
+
+
+  /* Sahne secici panel */
+  .sahne-secici {
+    display: inline-flex; gap: 6px; flex-wrap: wrap;
+    margin: 6px 0; padding: 8px 10px;
+    background: #fef3c7; border: 1px dashed #f59e0b;
+    border-radius: 8px; font-family: ui-sans-serif, system-ui;
+  }
+  .dark .sahne-secici { background: #422006; border-color: #92400e; }
+  .sahne-secici .etiket { font-size: 11px; color: #92400e; align-self: center;
+                           text-transform: uppercase; letter-spacing: 0.5px;
+                           margin-right: 4px; font-weight: 600; }
+  .dark .sahne-secici .etiket { color: #fcd34d; }
+  .sahne-opt {
+    padding: 4px 10px; border: 1px solid #fde68a;
+    background: white; border-radius: 6px;
+    font-size: 12px; font-family: 'Courier New', monospace; font-weight: 600;
+    cursor: pointer; transition: all .12s;
+    color: #92400e;
+  }
+  .dark .sahne-opt { background: #292524; border-color: #78350f; color: #fcd34d; }
+  .sahne-opt:hover, .sahne-opt.aktif {
+    background: #f59e0b; color: white; border-color: #f59e0b;
+  }
+  .dark .sahne-opt:hover, .dark .sahne-opt.aktif {
+    background: #f59e0b; color: #1c1917;
+  }
+
+</style>
+</head>
+<body class="bg-stone-50 dark:bg-zinc-900 text-stone-800 dark:text-stone-100 min-h-screen">
+
+<!-- HEADER -->
+<header class="border-b border-stone-200 dark:border-zinc-800 sticky top-0 bg-stone-50/95 dark:bg-zinc-900/95 backdrop-blur z-20">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <button onclick="anasayfa()" class="text-xl font-serif font-semibold hover:text-amber-600">📜 Senaryo</button>
+      <span id="projeYolu" class="text-sm text-stone-500"></span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="taslakInd" class="taslak-indikator">💾 kaydedildi</span>
+      <button id="temaBtn" class="p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-zinc-800" title="Tema">🌓</button>
+    </div>
+  </div>
+</header>
+
+<!-- ANASAYFA (proje listesi) -->
+<div id="ekranAnasayfa" class="max-w-5xl mx-auto px-6 py-10">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-serif">Projelerim</h2>
+    <button onclick="yeniProjeAc()" class="px-4 py-2 rounded-lg bg-stone-800 dark:bg-amber-500 text-white dark:text-stone-900 text-sm font-medium hover:opacity-90">+ Yeni Proje</button>
+  </div>
+  <div id="projeListesi" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</div>
+
+<!-- PROJE EKRANI -->
+<div id="ekranProje" class="hidden max-w-7xl mx-auto px-6 py-6 grid grid-cols-[240px_1fr] gap-6">
+
+  <!-- SOL: Proje nav -->
+  <aside class="space-y-4">
+    <div class="bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700">
+      <div class="p-3 border-b border-stone-200 dark:border-zinc-700">
+        <input id="projeAd" class="w-full bg-transparent text-sm font-semibold focus:outline-none" onblur="projeAdGuncelle()">
+        <textarea id="projeAciklama" rows="2" placeholder="Logline / kısa açıklama…" class="w-full mt-1 bg-transparent text-xs text-stone-500 focus:outline-none resize-none" onblur="projeAciklamaGuncelle()"></textarea>
+      </div>
+
+      <div class="p-3">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500">Bölümler</h3>
+          <button onclick="yeniBolumEkle()" class="text-xs text-amber-600 hover:underline">+ ekle</button>
+        </div>
+        <div id="bolumListesi" class="space-y-1"></div>
+      </div>
+
+      <div class="p-3 border-t border-stone-200 dark:border-zinc-700">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">Karakterler</h3>
+        <div id="karakterListesi" class="space-y-1"></div>
+      </div>
+
+      <div class="p-3 border-t border-stone-200 dark:border-zinc-700">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">Mekanlar</h3>
+        <div id="mekanListesi" class="space-y-1"></div>
+      </div>
+    </div>
+
+    <button onclick="anasayfa()" class="w-full text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">← Tüm projeler</button>
+  </aside>
+
+  <!-- SAĞ: Editör -->
+  <section class="bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700">
+    <!-- Sekme barı -->
+    <div class="flex items-center justify-between border-b border-stone-200 dark:border-zinc-700 px-4">
+      <div class="flex">
+        <button onclick="sekmeAc('analiz')" id="sekme-analiz" class="sekme px-4 py-3 text-sm font-medium">Analiz</button>
+        <button onclick="sekmeAc('treatment')" id="sekme-treatment" class="sekme px-4 py-3 text-sm font-medium">Treatment</button>
+        <button onclick="sekmeAc('screenplay')" id="sekme-screenplay" class="sekme px-4 py-3 text-sm font-medium">Screenplay</button>
+        <button onclick="sekmeAc('cards')" id="sekme-cards" class="sekme px-4 py-3 text-sm font-medium">Cards</button>
+      </div>
+      <div class="text-xs text-stone-500">
+        <span id="bolumBaslik"></span>
+      </div>
+    </div>
+
+    <!-- Analiz -->
+    <div id="ekranAnaliz" class="hidden p-6 space-y-6">
+
+      <!-- Süre & Hacim -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700 text-center">
+          <div id="anSayfa" class="text-3xl font-bold font-mono text-amber-600">—</div>
+          <div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Sayfa</div>
+        </div>
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700 text-center">
+          <div id="anSure" class="text-3xl font-bold font-mono text-amber-600">—</div>
+          <div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Dakika</div>
+        </div>
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700 text-center">
+          <div id="anSahne" class="text-3xl font-bold font-mono text-stone-700 dark:text-stone-300">—</div>
+          <div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Sahne</div>
+        </div>
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700 text-center">
+          <div id="anKelime" class="text-3xl font-bold font-mono text-stone-700 dark:text-stone-300">—</div>
+          <div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Kelime</div>
+        </div>
+      </div>
+
+      <!-- İçerik Oranları -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <!-- Aksiyon vs Diyalog -->
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">İçerik Dağılımı</h3>
+          <div id="anIcerikBars" class="space-y-2"></div>
+        </div>
+
+        <!-- İÇ. vs DIŞ. -->
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Mekan Türü</h3>
+          <div id="anMekanTur" class="space-y-2"></div>
+        </div>
+
+        <!-- Gün vs Gece -->
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Zaman Dağılımı</h3>
+          <div id="anZamanBars" class="space-y-2"></div>
+        </div>
+
+        <!-- Sayfa / Akt dağılımı -->
+        <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Akt Yapısı <span class="font-normal normal-case">(3 akt)</span></h3>
+          <div id="anAkt" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Karakter Analizi -->
+      <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Karakter Diyalog Dağılımı</h3>
+        <div id="anKarakterBars" class="space-y-2"></div>
+      </div>
+
+      <!-- Mekan Analizi -->
+      <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border border-stone-200 dark:border-zinc-700">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Mekan Kullanım Sıklığı</h3>
+        <div id="anMekanBars" class="space-y-2"></div>
+      </div>
+
+    </div>
+
+    <!-- Treatment -->
+    <div id="ekranTreatment" class="hidden p-6">
+      <p class="text-xs text-stone-500 mb-3 italic">Her sahnenin altına 1–2 cümleyle olayın özünü yaz. Senaryoyu sonra üst sekmede şişirirsin.</p>
+      <div id="treatmentListesi" class="space-y-4"></div>
+    </div>
+
+    <!-- Screenplay -->
+    <div id="ekranScreenplay" class="hidden">
+      <div class="px-3 py-2 border-b border-stone-200 dark:border-zinc-700 text-xs text-stone-500 flex items-center justify-between">
+        <span>💡 <b>Tab</b> ile blok tipi değiştir (aksiyon → karakter → diyalog → parantez → sahne → geçiş → not) · <b>Enter</b> yeni satır</span>
+      </div>
+      <div id="screenplayAlani" class="p-8 mx-auto" style="min-height: 60vh; max-width: 720px;">
+        <!-- Bloklar buraya gelecek -->
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div id="ekranCards" class="hidden p-6">
+      <p class="text-xs text-stone-500 mb-4 italic">Her sahne bir kart. Tıkla, o sahneye atla.</p>
+      <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </div>
+  </section>
+</div>
+
+<!-- Karakter/Mekan açıklama modal -->
+<div id="modal" class="hidden fixed inset-0 bg-black/40 z-30 flex items-center justify-center p-4" onclick="modalKapat(event)">
+  <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 max-w-md w-full" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-3">
+      <h3 id="modalBaslik" class="text-lg font-semibold"></h3>
+      <button onclick="modalKapat()" class="text-stone-400 hover:text-stone-700">✕</button>
+    </div>
+    <textarea id="modalAciklama" rows="6" placeholder="Açıklama, biyografi, notlar…" class="w-full bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm font-serif resize-none"></textarea>
+    <div class="flex justify-between items-center mt-3">
+      <button id="modalSilBtn" class="text-xs text-red-500 hover:underline">Sil</button>
+      <button onclick="modalKaydet()" class="px-4 py-2 rounded-lg bg-stone-800 dark:bg-amber-500 text-white dark:text-stone-900 text-sm font-medium">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Sabitler ============
+const BLOK_SIRA = ['aksiyon', 'karakter', 'diyalog', 'parantez', 'sahne', 'gecis', 'not'];
+const BLOK_AD = {
+  aksiyon: 'Aksiyon', karakter: 'Karakter', diyalog: 'Diyalog',
+  parantez: 'Parantez', sahne: 'Sahne', gecis: 'Geçiş', not: 'Not'
+};
+const BLOK_PLACEHOLDER = {
+  aksiyon: 'Sahne tasviri, aksiyon…',
+  karakter: 'KARAKTER ADI',
+  diyalog: 'Diyalog metni',
+  parantez: '(ses tonu / yönerge)',
+  sahne: 'İÇ. GÜN. KAFE',
+  gecis: 'CUT TO:',
+  not: 'Not (yazara hatırlatma)'
+};
+
+
+const SAHNE_PREFIX = [
+  {kod: 'İÇ.',       ad: 'İç mekan'},
+  {kod: 'DIŞ.',      ad: 'Dış mekan'},
+  {kod: 'İÇ./DIŞ.',  ad: 'İç/Dış geçişli'},
+];
+const SAHNE_ZAMAN = [
+  {kod: 'GÜN',       ad: 'Gündüz'},
+  {kod: 'GECE',      ad: 'Gece'},
+  {kod: 'GÜN/GECE',  ad: 'Belirsiz'},
+];
+
+const KARAKTER_UZANTILARI = [
+  {kod: '(V.O.)',      ad: 'Voice Over',  aciklama: 'Dış ses / anlatıcı'},
+  {kod: '(O.S.)',      ad: 'Off Screen',  aciklama: 'Sahnede ama kadraj dışı'},
+  {kod: "(CONT'D)",    ad: 'Continued',   aciklama: 'Repliğin devamı'},
+  {kod: '(O.C.)',      ad: 'Off Camera',  aciklama: 'Kamera dışı (eski)'},
+  {kod: '(PRE-LAP)',   ad: 'Pre-Lap',     aciklama: 'Sonraki sahnenin sesi'},
+  {kod: '(FILTERED)',  ad: 'Filtered',    aciklama: 'Telefon/radyo sesi'},
+];
+
+// ============ Durum ============
+let aktifProjeId = null;
+let aktifBolumId = null;
+let aktifSekme = 'analiz';
+let bloklar = [];           // [{tip, metin, beat?}]
+let proje = null;           // {ad, aciklama, bolumler, karakterler, mekanlar}
+let kayitTimer = null;
+let modalHedef = null;      // {tip:'karakter'|'mekan', id, ad}
+
+// ============ Tema ============
+const temaBtn = document.getElementById('temaBtn');
+function temaUygula() {
+  document.documentElement.classList.toggle('dark', localStorage.getItem('tema') === 'koyu');
+}
+temaBtn.onclick = () => {
+  const koyu = !document.documentElement.classList.contains('dark');
+  localStorage.setItem('tema', koyu ? 'koyu' : 'acik');
+  temaUygula();
+};
+temaUygula();
+
+// ============ Anasayfa / Proje listesi ============
+
+async function anasayfa() {
+  aktifProjeId = null;
+  aktifBolumId = null;
+  document.getElementById('ekranProje').classList.add('hidden');
+  document.getElementById('ekranAnasayfa').classList.remove('hidden');
+  document.getElementById('projeYolu').textContent = '';
+  const rows = await fetch('/api/projeler').then(r=>r.json());
+  const el = document.getElementById('projeListesi');
+  if (!rows.length) {
+    el.innerHTML = `<p class="col-span-full text-stone-400 italic text-sm">Henüz proje yok. "+ Yeni Proje" ile başla.</p>`;
+    return;
+  }
+  el.innerHTML = rows.map(p => `
+    <div class="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition" onclick="projeAc(${p.id})">
+      <h3 class="font-serif text-lg font-semibold mb-1">${escapeHTML(p.ad)}</h3>
+      ${p.aciklama ? `<p class="text-sm text-stone-500 mb-2 line-clamp-2">${escapeHTML(p.aciklama)}</p>` : ''}
+      <p class="text-xs text-stone-400">${p.bolum_sayisi} bölüm</p>
+    </div>
+  `).join('');
+}
+
+async function yeniProjeAc() {
+  const ad = prompt('Proje adı:', 'İsimsiz Proje');
+  if (ad === null) return;
+  const r = await fetch('/api/proje', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ad: ad.trim() || 'İsimsiz Proje'})
+  }).then(r=>r.json());
+  if (r.ok) projeAc(r.id);
+}
+
+// ============ Proje ekranı ============
+
+async function projeAc(id) {
+  aktifProjeId = id;
+  const r = await fetch(`/api/proje/${id}`).then(r=>r.json());
+  proje = r;
+  document.getElementById('ekranAnasayfa').classList.add('hidden');
+  document.getElementById('ekranProje').classList.remove('hidden');
+  document.getElementById('projeAd').value = r.proje.ad;
+  document.getElementById('projeAciklama').value = r.proje.aciklama || '';
+  document.getElementById('projeYolu').textContent = '/ ' + r.proje.ad;
+  bolumleriCiz();
+  karakterleriCiz();
+  mekanlariCiz();
+  // İlk bölümü aç
+  if (r.bolumler.length) bolumAc(r.bolumler[0].id);
+  sekmeAc(aktifSekme);
+}
+
+async function projeAdGuncelle() {
+  const ad = document.getElementById('projeAd').value.trim();
+  await fetch(`/api/proje/${aktifProjeId}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ad})
+  });
+  document.getElementById('projeYolu').textContent = '/ ' + (ad || 'İsimsiz');
+}
+async function projeAciklamaGuncelle() {
+  await fetch(`/api/proje/${aktifProjeId}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({aciklama: document.getElementById('projeAciklama').value})
+  });
+}
+
+function bolumleriCiz() {
+  const el = document.getElementById('bolumListesi');
+  el.innerHTML = proje.bolumler.map(b => `
+    <div class="group flex items-center justify-between text-sm rounded px-2 py-1 ${b.id===aktifBolumId?'bg-amber-100 dark:bg-amber-900/40':'hover:bg-stone-100 dark:hover:bg-zinc-700'} cursor-pointer">
+      <span onclick="bolumAc(${b.id})" class="flex-1">${escapeHTML(b.ad)}</span>
+      <button onclick="bolumSil(${b.id})" class="opacity-0 group-hover:opacity-100 text-xs text-stone-400 hover:text-red-500">✕</button>
+    </div>
+  `).join('');
+}
+
+async function yeniBolumEkle() {
+  const ad = prompt('Bölüm adı (boş bırakırsan otomatik):', '');
+  if (ad === null) return;
+  const r = await fetch(`/api/proje/${aktifProjeId}/bolum`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ad: ad.trim()})
+  }).then(r=>r.json());
+  if (r.ok) {
+    await refreshProje();
+    bolumAc(r.id);
+  }
+}
+
+async function bolumSil(id) {
+  if (!confirm('Bu bölüm tamamen silinsin mi?')) return;
+  await fetch(`/api/bolum/${id}`, {method:'DELETE'});
+  await refreshProje();
+  if (aktifBolumId === id && proje.bolumler.length) bolumAc(proje.bolumler[0].id);
+  else if (!proje.bolumler.length) { bloklar = []; ekraniCiz(); }
+}
+
+async function refreshProje() {
+  const r = await fetch(`/api/proje/${aktifProjeId}`).then(r=>r.json());
+  proje = r;
+  bolumleriCiz();
+  karakterleriCiz();
+  mekanlariCiz();
+}
+
+async function bolumAc(id) {
+  // Önce mevcut bölümü kaydet (taslak değil, gerçek kayıt)
+  if (aktifBolumId && aktifBolumId !== id) await kayitYap(true);
+  aktifBolumId = id;
+  const r = await fetch(`/api/bolum/${id}`).then(r=>r.json());
+  bloklar = r.bloklar.length ? r.bloklar : [{tip:'sahne', metin:''}];
+  document.getElementById('bolumBaslik').textContent = r.ad;
+  bolumleriCiz();
+  ekraniCiz();
+}
+
+// ============ Karakter / Mekan ============
+
+function karakterleriCiz() {
+  const el = document.getElementById('karakterListesi');
+  if (!proje.karakterler.length) {
+    el.innerHTML = `<p class="text-xs text-stone-400 italic">Senaryoda karakter adı yazdıkça burada otomatik görünecek.</p>`;
+    return;
+  }
+  el.innerHTML = proje.karakterler.map(k => `
+    <div class="text-sm rounded px-2 py-1 hover:bg-stone-100 dark:hover:bg-zinc-700 cursor-pointer" onclick="modalAc('karakter', ${k.id}, '${escapeAttr(k.ad)}', \`${escapeAttr(k.aciklama || '')}\`)">
+      ${escapeHTML(k.ad)} ${k.aciklama ? '<span class="text-amber-500">•</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function mekanlariCiz() {
+  const el = document.getElementById('mekanListesi');
+  if (!proje.mekanlar.length) {
+    el.innerHTML = `<p class="text-xs text-stone-400 italic">INT./EXT. sahne başlıkları yazdıkça burada görünecek.</p>`;
+    return;
+  }
+  el.innerHTML = proje.mekanlar.map(m => `
+    <div class="text-sm rounded px-2 py-1 hover:bg-stone-100 dark:hover:bg-zinc-700 cursor-pointer" onclick="modalAc('mekan', ${m.id}, '${escapeAttr(m.ad)}', \`${escapeAttr(m.aciklama || '')}\`)">
+      ${escapeHTML(m.ad)} ${m.aciklama ? '<span class="text-amber-500">•</span>' : ''}
+    </div>
+  `).join('');
+}
+
+function modalAc(tip, id, ad, aciklama) {
+  modalHedef = {tip, id, ad};
+  document.getElementById('modal').classList.remove('hidden');
+  document.getElementById('modalBaslik').textContent = (tip==='karakter'?'👤 ':'📍 ') + ad;
+  document.getElementById('modalAciklama').value = aciklama || '';
+  document.getElementById('modalSilBtn').onclick = async () => {
+    if (!confirm(`${ad} silinsin mi?`)) return;
+    await fetch(`/api/${tip}/${id}`, {method:'DELETE'});
+    modalKapat();
+    await refreshProje();
+  };
+}
+function modalKapat(e) {
+  if (e && e.target.id !== 'modal') return;
+  document.getElementById('modal').classList.add('hidden');
+  modalHedef = null;
+}
+async function modalKaydet() {
+  if (!modalHedef) return;
+  const ac = document.getElementById('modalAciklama').value;
+  await fetch(`/api/${modalHedef.tip}/${modalHedef.id}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({aciklama: ac})
+  });
+  modalKapat();
+  await refreshProje();
+}
+
+// ============ Sekme ============
+
+function sekmeAc(s) {
+  aktifSekme = s;
+  ['analiz','treatment','screenplay','cards'].forEach(k => {
+    document.getElementById(`sekme-${k}`).classList.toggle('aktif', k===s);
+    const ekranId = `ekran${k.charAt(0).toUpperCase()+k.slice(1)}`;
+    document.getElementById(ekranId).classList.toggle('hidden', k!==s);
+  });
+  ekraniCiz();
+}
+
+function ekraniCiz() {
+  if (aktifSekme === 'analiz') ciz_analiz();
+  else if (aktifSekme === 'screenplay') ciz_screenplay();
+  else if (aktifSekme === 'treatment') ciz_treatment();
+  else if (aktifSekme === 'cards') ciz_cards();
+}
+
+// ============ Screenplay editör ============
+
+function ciz_screenplay() {
+  const al = document.getElementById('screenplayAlani');
+  al.innerHTML = '';
+  if (!bloklar.length) bloklar.push({tip:'sahne', metin:''});
+  bloklar.forEach((b, i) => al.appendChild(blokElYap(b, i)));
+  // İlk boş alana odaklan
+  setTimeout(() => {
+    const ilkBos = al.querySelector('.blok-aksiyon, .blok-sahne, .blok-karakter, .blok-diyalog');
+    if (ilkBos && !ilkBos.value) ilkBos.focus();
+  }, 50);
+}
+
+function blokElYap(b, idx) {
+  const wrap = document.createElement('div');
+  wrap.className = 'blok-satir';
+  wrap.dataset.idx = idx;
+
+  const sil = document.createElement('span');
+  sil.className = 'blok-sil';
+  sil.textContent = '✕';
+  sil.title = 'Bloğu sil';
+  sil.onclick = () => { bloklar.splice(idx, 1); if (!bloklar.length) bloklar.push({tip:'aksiyon', metin:''}); ciz_screenplay(); kayitGec(); };
+  wrap.appendChild(sil);
+
+  const rozet = document.createElement('span');
+  rozet.className = 'blok-tip-rozet';
+  rozet.textContent = BLOK_AD[b.tip] + ' · Tab→';
+  wrap.appendChild(rozet);
+
+  const ta = document.createElement('textarea');
+  ta.className = `blok blok-${b.tip}`;
+  ta.value = b.metin || '';
+  ta.placeholder = BLOK_PLACEHOLDER[b.tip];
+  ta.rows = 1;
+  ta.dataset.idx = idx;
+
+  autoResize(ta);
+  ta.addEventListener('focus', () => {
+    if (bloklar[idx].tip === 'sahne') oneriGoster(ta, idx);
+  });
+  ta.addEventListener('input', (e) => {
+    bloklar[idx].metin = e.target.value;
+    if (bloklar[idx].tip === 'karakter' || bloklar[idx].tip === 'sahne') {
+      const son = e.target.selectionStart;
+      e.target.value = e.target.value.toUpperCase();
+      e.target.setSelectionRange(son, son);
+      bloklar[idx].metin = e.target.value;
+    }
+    // Karakter ve sahne için öneri
+    if (bloklar[idx].tip === 'karakter' || bloklar[idx].tip === 'sahne') {
+      oneriGoster(e.target, idx);
+    } else {
+      oneriKapat();
+    }
+    // Sahne yazarken: seçici panelin yenilenmesi için bloğu yeniden çizdir
+    // (sadece mekan adı tamamlandığında zaman seçici çıksın diye)
+    if (bloklar[idx].tip === 'sahne') {
+      const {prefix, mekan, zaman} = sahneAyristir(e.target.value);
+      // Eğer prefix yoksa ve kullanıcı bir şey yazdıysa, hâlâ prefix seçmedik demektir
+      // Eğer prefix var, mekan var, zaman yok ve son karakter " - " ise zaman seçici göster
+      if (prefix && mekan && !zaman) {
+        // Bu durumda zaman seçici göstermek için panel yeniden çizilmeli
+        // Ama her tuş vuruşunda çizmek imleci kaybeder — sadece "-" yazıldıktan sonra çiz
+        const son = e.target.value;
+        if (son.endsWith(' - ') || son.endsWith('-')) {
+          // Sahne metnini normalize et: " - " ile bitsin
+          const norm = sahneBirlestir(prefix, mekan, '');
+          if (e.target.value.toUpperCase() !== norm + ' - ') {
+            // Sadece görsel olarak; çizim aşağıda yenilenecek
+          }
+        }
+      }
+    }
+    autoResize(e.target);
+    kayitGec();
+  });
+  ta.addEventListener('blur', () => {
+    setTimeout(oneriKapat, 150);
+    // Sahne bloğundan ayrıldıysak, seçicinin durumu değişmiş olabilir
+    if (bloklar[idx] && bloklar[idx].tip === 'sahne') {
+      setTimeout(() => ciz_screenplay(), 200);
+    }
+  });
+
+  ta.addEventListener('keydown', (e) => {
+    // Öneri açıksa ok/enter onu yönetir
+    if (oneriAcikMi() && ['ArrowDown','ArrowUp','Enter','Escape','Tab'].includes(e.key)) {
+      if (oneriKlavye(e)) { e.preventDefault(); return; }
+    }
+
+    const su = bloklar[idx].tip;
+    const bos = e.target.value.trim() === '';
+
+    // === TAB: bağlama göre geçiş ===
+    if (e.key === 'Tab') {
+      e.preventDefault();
+
+      // KARAKTER (dolu) + TAB → yan parantez aç (satır içi)
+      if (su === 'karakter' && !bos) {
+        let metin = bloklar[idx].metin.trim();
+        // Zaten yan parantez var mı?
+        const m = metin.match(/^(.+?)\s*\(([^)]*)\)\s*$/);
+        if (m) {
+          // Var → imleci parantez içine al
+          bloklar[idx].metin = `${m[1]} (${m[2]})`;
+          ciz_screenplay();
+          setTimeout(() => {
+            const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+            if (el) {
+              el.focus();
+              const baslangic = m[1].length + 2;  // "AD ("
+              const son = baslangic + m[2].length;
+              el.setSelectionRange(baslangic, son);
+            }
+          }, 10);
+        } else {
+          // Yok → boş parantez ekle
+          bloklar[idx].metin = `${metin} ()`;
+          ciz_screenplay();
+          setTimeout(() => {
+            const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+            if (el) {
+              el.focus();
+              const pos = el.value.length - 1;  // ) öncesi
+              el.setSelectionRange(pos, pos);
+            }
+          }, 10);
+        }
+        kayitGec();
+        return;
+      }
+
+      // DİYALOG + TAB → üstüne parantez bloğu ekle (karakter-altı yönerge)
+      if (su === 'diyalog') {
+        // Mevcut diyalog imlecini önce kaydet
+        const imlec = e.target.selectionStart;
+        const onceki = bloklar[idx].metin.slice(0, imlec);
+        const sonraki = bloklar[idx].metin.slice(imlec);
+
+        if (bos || imlec === 0) {
+          // Diyalog boş ya da imleç başta → diyalog üstüne parantez bloğu ekle
+          bloklar.splice(idx, 0, {tip: 'parantez', metin: ''});
+          ciz_screenplay();
+          setTimeout(() => fokuslaIdx(idx), 10);  // yeni parantez bloğu (idx'e geldi)
+        } else {
+          // Diyalog ortasında → mevcut diyaloğu böl: önce / parantez / sonra
+          bloklar[idx].metin = onceki.trimEnd();
+          bloklar.splice(idx+1, 0, {tip: 'parantez', metin: ''});
+          bloklar.splice(idx+2, 0, {tip: 'diyalog', metin: sonraki.trimStart()});
+          ciz_screenplay();
+          setTimeout(() => fokuslaIdx(idx+1), 10);
+        }
+        kayitGec();
+        return;
+      }
+
+      // Diğer durumlar (önceki davranış)
+      let yeniTip = su;
+      if (su === 'aksiyon')       yeniTip = 'karakter';
+      else if (su === 'karakter') yeniTip = 'aksiyon';     // boş karakter → vazgeç
+      else if (su === 'parantez') yeniTip = 'karakter';
+      else if (su === 'sahne')    yeniTip = 'aksiyon';
+      else if (su === 'gecis')    yeniTip = 'sahne';
+      else if (su === 'not')      yeniTip = 'aksiyon';
+
+      bloklar[idx].tip = yeniTip;
+      ciz_screenplay();
+      setTimeout(() => fokuslaIdx(idx), 10);
+      kayitGec();
+      return;
+    }
+
+    // === ENTER ===
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      // ÇİFT ENTER → bağlama göre özel davranış
+      if (bos) {
+        // Boş bir bloğun üstünde Enter'a basıldı
+        if (su === 'aksiyon') {
+          // Boş aksiyon + Enter = sahne başlığına dön
+          bloklar[idx].tip = 'sahne';
+          ciz_screenplay();
+          setTimeout(() => fokuslaIdx(idx), 10);
+          kayitGec();
+          return;
+        }
+        if (su === 'karakter') {
+          // Boş karakter + Enter = vazgeç, aksiyona dön
+          bloklar[idx].tip = 'aksiyon';
+          ciz_screenplay();
+          setTimeout(() => fokuslaIdx(idx), 10);
+          kayitGec();
+          return;
+        }
+      }
+      // NORMAL ENTER → bir sonraki bloğa geç
+      let yeniTip;
+      if (su === 'sahne')          yeniTip = 'aksiyon';
+      else if (su === 'aksiyon')   yeniTip = 'aksiyon';   // yeni paragraf
+      else if (su === 'karakter')  yeniTip = 'diyalog';
+      else if (su === 'diyalog')   yeniTip = 'karakter';  // → diyalog bitti, sıradaki konuşmacı
+      else if (su === 'parantez')  yeniTip = 'diyalog';
+      else if (su === 'gecis')     yeniTip = 'sahne';
+      else                          yeniTip = 'aksiyon';
+      bloklar.splice(idx+1, 0, {tip: yeniTip, metin: ''});
+      ciz_screenplay();
+      setTimeout(() => fokuslaIdx(idx+1), 10);
+      kayitGec();
+      return;
+    }
+
+    // === BACKSPACE boş blokta ===
+    if (e.key === 'Backspace' && e.target.value === '') {
+      e.preventDefault();
+      // Boş karakter blokunda Backspace → aksiyon'a dön (bloğu silmek yerine tipini değiştir)
+      if (su === 'karakter') {
+        bloklar[idx].tip = 'aksiyon';
+        ciz_screenplay();
+        setTimeout(() => fokuslaIdx(idx), 10);
+        kayitGec();
+        return;
+      }
+      // Boş parantez bloğunda Backspace → diyalog'a dön
+      if (su === 'parantez') {
+        bloklar[idx].tip = 'diyalog';
+        ciz_screenplay();
+        setTimeout(() => fokuslaIdx(idx), 10);
+        kayitGec();
+        return;
+      }
+      // Diğer boş bloklarda → bloğu sil
+      if (bloklar.length > 1) {
+        bloklar.splice(idx, 1);
+        ciz_screenplay();
+        setTimeout(() => {
+          const onceki = document.querySelector(`#screenplayAlani textarea[data-idx="${Math.max(0,idx-1)}"]`);
+          if (onceki) { onceki.focus(); onceki.setSelectionRange(onceki.value.length, onceki.value.length); }
+        }, 10);
+        kayitGec();
+      }
+    }
+  });
+
+  wrap.appendChild(ta);
+
+  // Karakter satırı için uzantı butonu (V.O., O.S., CONT'D)
+  if (b.tip === 'karakter') {
+    const uzBtn = document.createElement('button');
+    uzBtn.type = 'button';
+    uzBtn.className = 'uzanti-btn';
+    uzBtn.textContent = '+ uzantı';
+    uzBtn.title = 'Karaktere uzantı ekle (V.O., O.S., CONT\'D)';
+    uzBtn.onmousedown = (e) => { e.preventDefault(); uzantiMenuAc(uzBtn, ta, idx); };
+    wrap.appendChild(uzBtn);
+  }
+
+  return wrap;
+}
+
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight) + 'px';
+}
+
+// ============ Analiz ============
+
+function ciz_analiz() {
+  if (!bloklar.length) return;
+
+  // --- Ham veriler ---
+  let aksiyonSatir = 0, diyalogSatir = 0, diyalogKelime = 0;
+  let aksiyonKelime = 0;
+  let sahneAdet = 0;
+  let ic = 0, dis = 0, icDis = 0;
+  let gun = 0, gece = 0, gunGece = 0;
+  const karDiyalog = {};  // {ad: kelimeSayisi}
+  const mekanKullanim = {};  // {ad: sahneAdet}
+  let toplamKelime = 0;
+
+  bloklar.forEach(b => {
+    const kelimeler = (b.metin || '').trim().split(/\s+/).filter(Boolean);
+    const kelSay = kelimeler.length;
+    toplamKelime += kelSay;
+
+    if (b.tip === 'sahne') {
+      sahneAdet++;
+      const m = b.metin || '';
+      // Prefix
+      if (/^\s*(İÇ\.\/DIŞ\.|DIŞ\.\/İÇ\.|I\/E\.)/i.test(m)) icDis++;
+      else if (/^\s*(DIŞ\.|EXT\.)/i.test(m)) dis++;
+      else if (/^\s*(İÇ\.|INT\.)/i.test(m)) ic++;
+      // Zaman: FORMAT: PREFIX ZAMAN. MEKAN
+      const zamanM = m.match(/^\s*(?:İÇ\.|DIŞ\.|INT\.|EXT\.|İÇ\.\/DIŞ\.|DIŞ\.\/İÇ\.|I\/E\.)\s*(GÜN\/GECE|GÜN|GECE)/i);
+      if (zamanM) {
+        const z = zamanM[1].toUpperCase();
+        if (z === 'GÜN') gun++;
+        else if (z === 'GECE') gece++;
+        else gunGece++;
+      }
+      // Mekan: 3. parça
+      const mekanM = m.match(/^\s*(?:İÇ\.|DIŞ\.|INT\.|EXT\.|İÇ\.\/DIŞ\.|DIŞ\.\/İÇ\.|I\/E\.)\s*(?:GÜN\/GECE|GÜN|GECE|SABAH|AKŞAM)\.\s*(.+?)\s*$/i);
+      if (mekanM) {
+        const mk = mekanM[1].trim().toUpperCase();
+        if (mk) mekanKullanim[mk] = (mekanKullanim[mk] || 0) + 1;
+      }
+    } else if (b.tip === 'aksiyon') {
+      aksiyonSatir++;
+      aksiyonKelime += kelSay;
+    } else if (b.tip === 'diyalog') {
+      diyalogSatir++;
+      diyalogKelime += kelSay;
+    } else if (b.tip === 'karakter') {
+      // Bir sonraki diyaloglar bu karaktere ait — ama bunu diyalog bloğunda takip etmek daha güvenilir
+      // Karakter adını normalizle
+      const adTemiz = (b.metin || '').replace(/\(.*?\)/g, '').trim().toUpperCase();
+      if (adTemiz) {
+        // Şimdiki bloğun hemen ardından gelen diyalogları say
+        const idx = bloklar.indexOf(b);
+        let j = idx + 1;
+        while (j < bloklar.length && (bloklar[j].tip === 'diyalog' || bloklar[j].tip === 'parantez')) {
+          if (bloklar[j].tip === 'diyalog') {
+            const dKel = (bloklar[j].metin || '').trim().split(/\s+/).filter(Boolean).length;
+            karDiyalog[adTemiz] = (karDiyalog[adTemiz] || 0) + dKel;
+          }
+          j++;
+        }
+      }
+    }
+  });
+
+  // --- Sayfa & süre (sektör standardı: 55 satır = 1 sayfa = 1 dk) ---
+  // Daha iyi yaklaşım: her blok tipine göre satır tahmini
+  const SATIRLAR_PER_SAYFA = 55;
+  let toplamSatir = 0;
+  bloklar.forEach(b => {
+    const metin = b.metin || '';
+    const satirSayisi = Math.max(1, Math.ceil(metin.length / 60));
+    if (b.tip === 'sahne') toplamSatir += satirSayisi + 1; // +1 boşluk
+    else if (b.tip === 'aksiyon') toplamSatir += satirSayisi + 0.5;
+    else if (b.tip === 'karakter') toplamSatir += 1;
+    else if (b.tip === 'diyalog') toplamSatir += satirSayisi;
+    else if (b.tip === 'parantez') toplamSatir += 1;
+    else if (b.tip === 'gecis') toplamSatir += 1.5;
+  });
+  const sayfaSayisi = Math.max(0, toplamSatir / SATIRLAR_PER_SAYFA);
+  const dakika = Math.round(sayfaSayisi);
+
+  // --- Yardımcı bar çizici ---
+  function barCiz(konteyner, satirlar) {
+    const el = document.getElementById(konteyner);
+    if (!el) return;
+    if (!satirlar.length) { el.innerHTML = '<p class="text-xs text-stone-400 italic">Veri yok</p>'; return; }
+    const maks = Math.max(...satirlar.map(s => s.deger));
+    el.innerHTML = satirlar.map(s => {
+      const yuzde = maks > 0 ? (s.deger / maks * 100) : 0;
+      const etiketYuzde = (s.toplam > 0 && s.deger > 0) ? Math.round(s.deger / s.toplam * 100) : 0;
+      return `<div class="flex items-center gap-2">
+        <div class="w-24 text-xs text-stone-600 dark:text-stone-400 text-right truncate shrink-0">${s.ad}</div>
+        <div class="flex-1 bg-stone-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden">
+          <div class="h-full rounded-full ${s.renk || 'bg-amber-500'}" style="width:${yuzde}%"></div>
+        </div>
+        <div class="text-xs text-stone-500 w-16 shrink-0">${s.etiket}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // --- Metrikleri yaz ---
+  document.getElementById('anSayfa').textContent = sayfaSayisi.toFixed(1);
+  document.getElementById('anSure').textContent = dakika;
+  document.getElementById('anSahne').textContent = sahneAdet;
+  document.getElementById('anKelime').textContent = toplamKelime.toLocaleString('tr');
+
+  // İçerik dağılımı
+  const icerikToplam = aksiyonKelime + diyalogKelime;
+  barCiz('anIcerikBars', [
+    {ad:'Aksiyon', deger: aksiyonKelime, toplam: icerikToplam, renk:'bg-blue-500',   etiket: aksiyonKelime + ' kel.'},
+    {ad:'Diyalog', deger: diyalogKelime, toplam: icerikToplam, renk:'bg-amber-500',  etiket: diyalogKelime + ' kel.'},
+  ]);
+
+  // Mekan türü
+  const mekanTurToplam = ic + dis + icDis;
+  barCiz('anMekanTur', [
+    {ad:'İÇ.',     deger: ic,    toplam: mekanTurToplam, renk:'bg-purple-500', etiket: ic + ' sahne'},
+    {ad:'DIŞ.',    deger: dis,   toplam: mekanTurToplam, renk:'bg-green-500',  etiket: dis + ' sahne'},
+    {ad:'İÇ./DIŞ.',deger: icDis, toplam: mekanTurToplam, renk:'bg-stone-400',  etiket: icDis + ' sahne'},
+  ]);
+
+  // Zaman dağılımı
+  const zamanToplam = gun + gece + gunGece;
+  barCiz('anZamanBars', [
+    {ad:'Gündüz',   deger: gun,     toplam: zamanToplam, renk:'bg-yellow-400', etiket: gun + ' sahne'},
+    {ad:'Gece',     deger: gece,    toplam: zamanToplam, renk:'bg-indigo-600', etiket: gece + ' sahne'},
+    {ad:'Gün/Gece', deger: gunGece, toplam: zamanToplam, renk:'bg-stone-400',  etiket: gunGece + ' sahne'},
+  ]);
+
+  // Akt yapısı (3 akt: %25 / %50 / %25)
+  const akt1 = Math.round(sayfaSayisi * 0.25);
+  const akt2 = Math.round(sayfaSayisi * 0.50);
+  const akt3 = Math.round(sayfaSayisi * 0.25);
+  const aktEl = document.getElementById('anAkt');
+  if (aktEl) {
+    const aktToplam = sayfaSayisi || 1;
+    aktEl.innerHTML = `
+      <div class="flex items-center gap-2 mb-3">
+        <div class="flex-1 flex rounded-full overflow-hidden h-4">
+          <div class="bg-blue-400 flex items-center justify-center text-white text-xs font-bold" style="width:25%" title="Akt 1">I</div>
+          <div class="bg-amber-400 flex items-center justify-center text-white text-xs font-bold" style="width:50%" title="Akt 2">II</div>
+          <div class="bg-green-400 flex items-center justify-center text-white text-xs font-bold" style="width:25%" title="Akt 3">III</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 text-xs text-stone-500 text-center">
+        <div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${akt1}</span> sayfa<br>Kurgu</div>
+        <div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${akt2}</span> sayfa<br>Gelişme</div>
+        <div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${akt3}</span> sayfa<br>Çözüm</div>
+      </div>
+      <p class="text-xs text-stone-400 mt-2 italic">Standart 3-akt yapısı referans olarak gösterilir.</p>
+    `;
+  }
+
+  // Karakter diyalog
+  const karSirali = Object.entries(karDiyalog).sort((a,b) => b[1]-a[1]).slice(0, 10);
+  const karToplam = karSirali.reduce((s,[,v]) => s+v, 0);
+  barCiz('anKarakterBars', karSirali.map(([ad, kel]) => ({
+    ad, deger: kel, toplam: karToplam,
+    renk: 'bg-amber-500',
+    etiket: kel + ' kel. (' + (karToplam > 0 ? Math.round(kel/karToplam*100) : 0) + '%)'
+  })));
+
+  // Mekan kullanım
+  const mekanSirali = Object.entries(mekanKullanim).sort((a,b) => b[1]-a[1]).slice(0, 10);
+  const mekanToplam = mekanSirali.reduce((s,[,v]) => s+v, 0);
+  barCiz('anMekanBars', mekanSirali.map(([ad, adet]) => ({
+    ad, deger: adet, toplam: mekanToplam,
+    renk: 'bg-purple-500',
+    etiket: adet + ' sahne'
+  })));
+}
+
+// ============ Treatment ============
+
+function ciz_treatment() {
+  const el = document.getElementById('treatmentListesi');
+  const sahneler = [];
+  let aktif = null;
+  bloklar.forEach((b, i) => {
+    if (b.tip === 'sahne') {
+      aktif = {idx: i, baslik: b.metin || '(başlıksız sahne)', beat: b.beat || '', icerik: []};
+      sahneler.push(aktif);
+    } else if (aktif) {
+      aktif.icerik.push(b);
+    }
+  });
+  if (!sahneler.length) {
+    el.innerHTML = `<p class="text-sm text-stone-400 italic">Henüz sahne yok. Screenplay sekmesine geçip INT./EXT. ile sahne başlığı yazarak başla.</p>`;
+    return;
+  }
+  el.innerHTML = sahneler.map(s => `
+    <div class="bg-stone-50 dark:bg-zinc-900 rounded-lg p-4 border border-stone-200 dark:border-zinc-700">
+      <div class="font-mono font-bold text-sm uppercase text-amber-700 dark:text-amber-300 mb-2">${escapeHTML(s.baslik)}</div>
+      <textarea rows="2" placeholder="Bu sahnenin özü — 1-2 cümleyle ne oluyor?" class="w-full bg-transparent text-sm font-serif resize-none focus:outline-none border-l-2 border-amber-300 pl-3" oninput="beatGuncelle(${s.idx}, this.value)">${escapeHTML(s.beat)}</textarea>
+      <div class="mt-2 text-xs text-stone-400">${s.icerik.length} blok yazılmış</div>
+    </div>
+  `).join('');
+}
+
+function beatGuncelle(idx, beat) {
+  bloklar[idx].beat = beat;
+  kayitGec();
+}
+
+// ============ Cards ============
+
+function ciz_cards() {
+  const el = document.getElementById('cardsGrid');
+  const sahneler = [];
+  let aktif = null;
+  bloklar.forEach((b, i) => {
+    if (b.tip === 'sahne') {
+      aktif = {idx: i, baslik: b.metin || '(başlıksız)', beat: b.beat || '', adet: 0};
+      sahneler.push(aktif);
+    } else if (aktif) {
+      aktif.adet++;
+    }
+  });
+  if (!sahneler.length) {
+    el.innerHTML = `<p class="col-span-full text-sm text-stone-400 italic">Henüz sahne yok.</p>`;
+    return;
+  }
+  el.innerHTML = sahneler.map((s, i) => `
+    <div class="kart rounded-lg p-4 cursor-pointer" onclick="sekmeAc('screenplay'); setTimeout(()=>fokusla(${s.idx}), 50);">
+      <div class="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">SAHNE ${i+1}</div>
+      <div class="font-mono uppercase text-sm font-semibold mb-3">${escapeHTML(s.baslik)}</div>
+      ${s.beat ? `<div class="text-xs text-stone-600 dark:text-stone-300 italic font-serif">${escapeHTML(s.beat)}</div>` : `<div class="text-xs text-stone-400 italic">Beat eklenmemiş</div>`}
+      <div class="text-xs text-stone-400 mt-3">${s.adet} blok</div>
+    </div>
+  `).join('');
+}
+
+function fokusla(idx) {
+  const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+  if (el) { el.focus(); el.scrollIntoView({behavior:'smooth', block:'center'}); }
+}
+
+// ============ Otomatik kayıt ============
+
+function kayitGec() {
+  clearTimeout(kayitTimer);
+  kayitTimer = setTimeout(() => kayitYap(), 1200);
+}
+
+async function kayitYap(forced) {
+  if (!aktifBolumId) return;
+  await fetch(`/api/bolum/${aktifBolumId}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({bloklar})
+  });
+  const ind = document.getElementById('taslakInd');
+  ind.classList.add('gorunur');
+  setTimeout(() => ind.classList.remove('gorunur'), 1200);
+  // Karakter/mekan listesi backend'de güncellendi, sol paneli yenile
+  if (forced || Math.random() < 0.3) {
+    const r = await fetch(`/api/proje/${aktifProjeId}`).then(r=>r.json());
+    proje = r;
+    karakterleriCiz();
+    mekanlariCiz();
+  }
+}
+
+
+
+
+// ============ Sahne aşamalı seçici (prefix → mekan → zaman) ============
+function sahneAyristir(metin) {
+  // {prefix, mekan, zaman} döner (eksikse boş string)
+  const m = (metin || '').match(/^\s*(İÇ\.\s*\/\s*DIŞ\.|DIŞ\.\s*\/\s*İÇ\.|İÇ\.|DIŞ\.|INT\.|EXT\.|I\/E\.)?\s*(.*?)\s*$/i);
+  if (!m) return {prefix:'', mekan:'', zaman:''};
+  const prefix = (m[1] || '').toUpperCase().replace(/\s+/g, '');
+  const kalan = m[2] || '';
+  const tireSplit = kalan.split(/\s*[-–]\s*/);
+  const mekan = (tireSplit[0] || '').trim().toUpperCase();
+  const zaman = (tireSplit[1] || '').trim().toUpperCase();
+  return {prefix, mekan, zaman};
+}
+
+function sahneBirlestir(prefix, mekan, zaman) {
+  let r = prefix || '';
+  if (mekan) r += (r ? ' ' : '') + mekan;
+  if (zaman) r += ' - ' + zaman;
+  return r;
+}
+
+function sahneSeciciYap(idx, mevcutMetin) {
+  const {prefix, mekan, zaman} = sahneAyristir(mevcutMetin || '');
+  const c = document.createElement('div');
+  c.className = 'sahne-secici';
+
+  // Prefix yoksa veya yanlışsa: prefix butonları
+  const prefixGoster = !SAHNE_PREFIX.some(p => p.kod === prefix);
+  // Zaman yoksa ve mekan varsa: zaman butonları
+  const zamanGoster = mekan.length > 0 && !zaman;
+
+  if (!prefixGoster && !zamanGoster) {
+    return null;  // Her şey tamam, seçici göstermeye gerek yok
+  }
+
+  if (prefixGoster) {
+    const et = document.createElement('span');
+    et.className = 'etiket'; et.textContent = 'Tür:';
+    c.appendChild(et);
+    SAHNE_PREFIX.forEach(p => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sahne-opt';
+      b.textContent = p.kod;
+      b.title = p.ad;
+      b.onmousedown = (ev) => {
+        ev.preventDefault();
+        sahnePrefixSec(idx, p.kod);
+      };
+      c.appendChild(b);
+    });
+  } else if (zamanGoster) {
+    const et = document.createElement('span');
+    et.className = 'etiket'; et.textContent = 'Zaman:';
+    c.appendChild(et);
+    SAHNE_ZAMAN.forEach(z => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'sahne-opt';
+      b.textContent = z.kod;
+      b.title = z.ad;
+      b.onmousedown = (ev) => {
+        ev.preventDefault();
+        sahneZamanSec(idx, z.kod);
+      };
+      c.appendChild(b);
+    });
+  }
+  return c;
+}
+
+function sahnePrefixSec(idx, prefixKod) {
+  const {mekan, zaman} = sahneAyristir(bloklar[idx].metin || '');
+  bloklar[idx].metin = sahneBirlestir(prefixKod, mekan, zaman);
+  ciz_screenplay();
+  setTimeout(() => {
+    const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+    if (el) {
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    }
+  }, 10);
+  kayitGec();
+}
+
+function sahneZamanSec(idx, zamanKod) {
+  const {prefix, mekan} = sahneAyristir(bloklar[idx].metin || '');
+  if (!mekan) return;
+  bloklar[idx].metin = sahneBirlestir(prefix, mekan, zamanKod);
+  ciz_screenplay();
+  setTimeout(() => {
+    const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+    if (el) {
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    }
+  }, 10);
+  kayitGec();
+}
+
+// Sahne yazarken otomatik " - " ekleyici: mekan adı yazıp Space-Space ya da " -" yazınca zaman seçici çıkar
+// (Bunu input listener içinde yapıyoruz — aşağıda mevcut input'a ekleyeceğiz)
+
+// ============ Karakter uzantıları (V.O., O.S., CONT'D) ============
+let uzMenu = null;
+
+function uzantiMenuAc(btn, ta, idx) {
+  uzantiMenuKapat();
+  uzMenu = document.createElement('div');
+  uzMenu.className = 'fixed bg-white dark:bg-zinc-800 border border-stone-300 dark:border-zinc-600 rounded-lg shadow-xl z-40 text-sm overflow-hidden';
+  uzMenu.style.minWidth = '220px';
+  uzMenu.innerHTML = KARAKTER_UZANTILARI.map(u => `
+    <div class="px-3 py-2 cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40 border-b border-stone-100 dark:border-zinc-700 last:border-0"
+         onmousedown="event.preventDefault(); uzantiEkle(${idx}, '${u.kod.replace(/'/g, "\\'")}')">
+      <div class="font-mono font-semibold text-xs">${u.kod}</div>
+      <div class="text-xs text-stone-500">${u.ad} — ${u.aciklama}</div>
+    </div>
+  `).join('');
+  const rect = btn.getBoundingClientRect();
+  uzMenu.style.left = (rect.right - 220) + 'px';
+  uzMenu.style.top  = (rect.bottom + 4) + 'px';
+  document.body.appendChild(uzMenu);
+  setTimeout(() => {
+    document.addEventListener('mousedown', uzantiDisariTik, {once: true});
+  }, 10);
+}
+
+function uzantiDisariTik(e) {
+  if (uzMenu && !uzMenu.contains(e.target)) uzantiMenuKapat();
+}
+
+function uzantiMenuKapat() {
+  if (uzMenu) { uzMenu.remove(); uzMenu = null; }
+}
+
+function uzantiEkle(idx, kod) {
+  let metin = (bloklar[idx].metin || '').trim();
+  // Önceki uzantıyı temizle: "AYŞE (V.O.)" → "AYŞE"
+  metin = metin.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  bloklar[idx].metin = metin ? `${metin} ${kod}` : kod;
+  uzantiMenuKapat();
+  ciz_screenplay();
+  setTimeout(() => fokuslaIdx(idx), 10);
+  kayitGec();
+}
+
+// Klavye kısayolu: Option+1/2/3 → V.O. / O.S. / CONT'D
+document.addEventListener('keydown', (e) => {
+  if (!e.altKey || e.metaKey || e.ctrlKey) return;
+  const aktifTa = document.activeElement;
+  if (!aktifTa || !aktifTa.classList || !aktifTa.classList.contains('blok-karakter')) return;
+  const idx = parseInt(aktifTa.dataset.idx);
+  if (isNaN(idx)) return;
+  if (e.key === '1') { e.preventDefault(); uzantiEkle(idx, '(V.O.)'); }
+  else if (e.key === '2') { e.preventDefault(); uzantiEkle(idx, '(O.S.)'); }
+  else if (e.key === '3') { e.preventDefault(); uzantiEkle(idx, "(CONT'D)"); }
+});
+
+// ============ Yardımcı: idx'e odaklan ============
+function fokuslaIdx(idx) {
+  const el = document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`);
+  if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+}
+
+// ============ Karakter öneri sistemi ============
+let oneriEl = null;
+let oneriListe = [];
+let oneriSecili = 0;
+let oneriHedefTa = null;
+let oneriHedefIdx = null;
+
+function oneriAcikMi() { return oneriEl && !oneriEl.classList.contains('hidden'); }
+
+function oneriGoster(ta, idx) {
+  const tip = bloklar[idx].tip;
+  const metin = ta.value;
+  const metinUpper = metin.toUpperCase();
+  if (!proje) { oneriKapat(); return; }
+
+  // === KARAKTER ===
+  if (tip === 'karakter') {
+    const yaziTemiz = metinUpper.replace(/\s*\(.*$/, '').trim();
+    if (yaziTemiz.length < 1) { oneriKapat(); return; }
+    const eslesen = (proje.karakterler || [])
+      .map(k => k.ad)
+      .filter(ad => ad.startsWith(yaziTemiz) && ad !== yaziTemiz)
+      .slice(0, 6);
+    if (!eslesen.length) { oneriKapat(); return; }
+    oneriListe = eslesen.map(ad => ({kod: ad, goster: ad, tip: 'karakter-full'}));
+    oneriPozisyon(ta);
+    return;
+  }
+
+  // === SAHNE — yeni sıra: PREFIX. ZAMAN. MEKAN ===
+  if (tip === 'sahne') {
+    const PREFIX_RE = /^\s*(İÇ\.\s*\/\s*DIŞ\.|DIŞ\.\s*\/\s*İÇ\.|İÇ\.|DIŞ\.|INT\.|EXT\.|I\/E\.)/i;
+    const prefixMatch = metinUpper.match(PREFIX_RE);
+
+    // Aşama 1: PREFIX
+    if (!prefixMatch) {
+      const yazi = metinUpper.trim();
+      const tumu = [
+        {kod: 'İÇ.',      goster: 'İÇ.',      aciklama: 'İç mekan'},
+        {kod: 'DIŞ.',     goster: 'DIŞ.',     aciklama: 'Dış mekan'},
+        {kod: 'İÇ./DIŞ.', goster: 'İÇ./DIŞ.', aciklama: 'İç/Dış geçişli'},
+      ];
+      const eslesen = yazi.length === 0
+        ? tumu
+        : tumu.filter(p => p.kod.startsWith(yazi) || p.kod.replace(/\./g,'').startsWith(yazi.replace(/\./g,'')));
+      if (!eslesen.length) { oneriKapat(); return; }
+      oneriListe = eslesen.map(p => ({...p, tip: 'sahne-prefix'}));
+      oneriPozisyon(ta);
+      return;
+    }
+
+    const prefix = prefixMatch[1].toUpperCase().replace(/\s+/g, '');
+    const sonrasi = metinUpper.slice(prefixMatch[0].length).trim();
+
+    // Aşama 2: ZAMAN
+    const ZAMAN_RE = /^(GÜN\/GECE|GÜN|GECE|SABAH|AKŞAM)\.?\s*(.*)$/i;
+    const zamanMatch = sonrasi.match(ZAMAN_RE);
+
+    if (!zamanMatch) {
+      const tumZaman = [
+        {kod: 'GÜN',       goster: 'GÜN'},
+        {kod: 'GECE',      goster: 'GECE'},
+        {kod: 'GÜN/GECE',  goster: 'GÜN/GECE'},
+      ];
+      const eslesen = sonrasi.length === 0
+        ? tumZaman
+        : tumZaman.filter(z => z.kod.startsWith(sonrasi));
+      if (!eslesen.length) { oneriKapat(); return; }
+      oneriListe = eslesen.map(z => ({...z, tip: 'sahne-zaman', prefix}));
+      oneriPozisyon(ta);
+      return;
+    }
+
+    // Aşama 3: MEKAN
+    const zaman = zamanMatch[1].toUpperCase();
+    const mekanYazi = (zamanMatch[2] || '').trim();
+    const mekanlar = (proje.mekanlar || []).map(m => m.ad);
+    if (mekanYazi.length === 0) {
+      // Boşken: tüm mekanlar
+      if (!mekanlar.length) { oneriKapat(); return; }
+      oneriListe = mekanlar.slice(0, 8).map(m => ({
+        kod: m, goster: m, tip: 'sahne-mekan', prefix, zaman
+      }));
+      oneriPozisyon(ta);
+      return;
+    }
+    const eslesen = mekanlar
+      .filter(m => m.startsWith(mekanYazi) && m !== mekanYazi)
+      .slice(0, 6);
+    if (!eslesen.length) { oneriKapat(); return; }
+    oneriListe = eslesen.map(m => ({
+      kod: m, goster: m, tip: 'sahne-mekan', prefix, zaman
+    }));
+    oneriPozisyon(ta);
+    return;
+  }
+
+  oneriKapat();
+}
+
+function oneriPozisyon(ta) {
+  oneriSecili = 0;
+  oneriHedefTa = ta;
+  oneriHedefIdx = parseInt(ta.dataset.idx);
+  if (!oneriEl) {
+    oneriEl = document.createElement('div');
+    oneriEl.id = 'oneriKutu';
+    oneriEl.className = 'fixed bg-white dark:bg-zinc-800 border border-stone-300 dark:border-zinc-600 rounded-lg shadow-lg z-30 text-sm overflow-hidden';
+    oneriEl.style.minWidth = '200px';
+    document.body.appendChild(oneriEl);
+  }
+  const rect = ta.getBoundingClientRect();
+  oneriEl.style.left = rect.left + 'px';
+  oneriEl.style.top  = (rect.bottom + 2) + 'px';
+  oneriEl.classList.remove('hidden');
+  oneriCiz();
+}
+
+function oneriPozisyon(ta) {
+  oneriSecili = 0;
+  oneriHedefTa = ta;
+  oneriHedefIdx = parseInt(ta.dataset.idx);
+  if (!oneriEl) {
+    oneriEl = document.createElement('div');
+    oneriEl.id = 'oneriKutu';
+    oneriEl.className = 'fixed bg-white dark:bg-zinc-800 border border-stone-300 dark:border-zinc-600 rounded-lg shadow-lg z-30 text-sm overflow-hidden';
+    oneriEl.style.minWidth = '200px';
+    document.body.appendChild(oneriEl);
+  }
+  const rect = ta.getBoundingClientRect();
+  oneriEl.style.left = rect.left + 'px';
+  oneriEl.style.top  = (rect.bottom + 2) + 'px';
+  oneriEl.classList.remove('hidden');
+  oneriCiz();
+}
+
+function oneriCiz() {
+  if (!oneriEl) return;
+  oneriEl.innerHTML = oneriListe.map((item, i) => {
+    const aciklama = item.aciklama ? `<div class="text-xs text-stone-400">${item.aciklama}</div>` : '';
+    return `<div class="px-3 py-1.5 cursor-pointer ${i===oneriSecili?'bg-amber-100 dark:bg-amber-900/40':''} hover:bg-stone-100 dark:hover:bg-zinc-700" onmousedown="event.preventDefault(); oneriSec(${i})">
+      <div class="font-mono uppercase text-sm font-semibold">${item.goster}</div>
+      ${aciklama}
+    </div>`;
+  }).join('');
+}
+
+function oneriSec(i) {
+  if (!oneriHedefTa || !oneriListe[i]) return;
+  const item = oneriListe[i];
+  const idx = oneriHedefIdx;
+  let yeniDeger = '';
+
+  if (item.tip === 'sahne-prefix') {
+    yeniDeger = item.kod + ' ';
+  } else if (item.tip === 'sahne-zaman') {
+    yeniDeger = item.prefix + ' ' + item.kod + '. ';
+  } else if (item.tip === 'sahne-mekan') {
+    yeniDeger = item.prefix + ' ' + item.zaman + '. ' + item.kod;
+  } else {
+    yeniDeger = item.kod;
+  }
+  oneriHedefTa.value = yeniDeger;
+  bloklar[idx].metin = yeniDeger;
+  oneriKapat();
+  oneriHedefTa.focus();
+  oneriHedefTa.setSelectionRange(yeniDeger.length, yeniDeger.length);
+  setTimeout(() => oneriGoster(oneriHedefTa || document.querySelector(`#screenplayAlani textarea[data-idx="${idx}"]`), idx), 50);
+  kayitGec();
+}
+
+function oneriKlavye(e) {
+  if (e.key === 'ArrowDown') { oneriSecili = (oneriSecili+1) % oneriListe.length; oneriCiz(); return true; }
+  if (e.key === 'ArrowUp')   { oneriSecili = (oneriSecili-1+oneriListe.length) % oneriListe.length; oneriCiz(); return true; }
+  if (e.key === 'Enter' || e.key === 'Tab') { oneriSec(oneriSecili); return true; }
+  if (e.key === 'Escape') { oneriKapat(); return true; }
+  return false;
+}
+
+function oneriKapat() {
+  if (oneriEl) oneriEl.classList.add('hidden');
+  oneriListe = [];
+}
+
+// ============ Yardımcılar ============
+
+function escapeHTML(s) {
+  return String(s||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+function escapeAttr(s) {
+  return String(s||'').replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/'/g, "\\'");
+}
+
+// Sayfa kapanırken son kayıt
+window.addEventListener('beforeunload', () => {
+  if (aktifBolumId) {
+    navigator.sendBeacon(`/api/bolum/${aktifBolumId}`,
+      new Blob([JSON.stringify({bloklar})], {type:'application/json'}));
+  }
+});
+
+// Başlat
+anasayfa();
+</script>
+</body>
+</html>
