@@ -718,14 +718,13 @@ async function cizSezonListesi(){
     const bs=await dbAll('bolumler','sezon_id',sz.id);
     bs.sort((a,b)=>(a.sira||0)-(b.sira||0));
     html+=`<div class="sezon-grup">
-      <div class="sezon-header" onclick="sezonToggle(${sz.id})">
-        <div class="flex items-center gap-1">
-          <span class="sezon-ok" id="sok-${sz.id}">›</span>
+      <div class="sezon-header">
+        <div class="flex items-center gap-1 flex-1 cursor-pointer" onclick="sezonGenelAc(${sz.id})">
           <span>${escH(sz.ad)}</span>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="event.stopPropagation();sezonGenelAc(${sz.id})" class="text-xs text-stone-400 hover:text-amber-600" title="Sezon bilgileri">ℹ</button>
-          <button onclick="event.stopPropagation();yeniBolumEkle(${sz.id})" class="text-amber-500 font-bold text-sm">+</button>
+          <button onclick="event.stopPropagation();yeniBolumEkle(${sz.id})" class="text-amber-500 font-bold text-sm" title="Yeni bölüm">+</button>
+          <span class="sezon-ok cursor-pointer" id="sok-${sz.id}" onclick="sezonToggle(${sz.id})">›</span>
         </div>
       </div>
       <div class="sezon-body acik" id="sb-${sz.id}">
