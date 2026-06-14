@@ -220,16 +220,7 @@
           </div>
         </div>
 
-        <!-- Araçlar accordion -->
-        <div class="acc-header" onclick="accToggle('araclar')">
-          <span>Araçlar</span>
-          <span class="acc-ok" id="ok-araclar">›</span>
-        </div>
-        <div class="acc-body" id="acc-araclar">
-          <div class="nav-item" id="ni-karakterler" onclick="navAc('karakterler')">Karakterler</div>
-          <div class="nav-item" id="ni-mekanlar" onclick="navAc('mekanlar')">Mekanlar</div>
-          <div class="nav-item" id="ni-analiz" onclick="navAc('analiz')">Analiz</div>
-        </div>
+
 
         <div class="p-3 border-t border-stone-100 dark:border-zinc-700">
           <button onclick="anasayfa()" class="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">← Tüm projeler</button>
@@ -279,7 +270,14 @@
       </div>
 
       <!-- Sezon: Genel bilgiler -->
-      <div id="alan-sezon-genel" class="icerik-alani bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700 p-6 space-y-5">
+      <div id="alan-sezon-genel" class="icerik-alani bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700 overflow-hidden">
+        <div class="flex border-b border-stone-200 dark:border-zinc-700 px-2">
+          <button onclick="sezonSekme('hikaye')" id="ss-hikaye" class="sezon-sekme px-3 py-2.5 text-xs font-medium border-b-2 border-amber-500 text-amber-700">Hikaye</button>
+          <button onclick="sezonSekme('skarakterler')" id="ss-skarakterler" class="sezon-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Karakterler</button>
+          <button onclick="sezonSekme('smekanlar')" id="ss-smekanlar" class="sezon-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Mekanlar</button>
+          <button onclick="sezonSekme('sanaliz')" id="ss-sanaliz" class="sezon-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Analiz</button>
+        </div>
+        <div id="ss-alan-hikaye" class="sezon-alan p-6 space-y-5">
         <div>
           <h2 id="sezonGenelBaslik" class="text-lg font-semibold mb-4">Sezon Bilgileri</h2>
           <label class="block text-xs font-semibold uppercase tracking-wide text-stone-500 mb-1">Tagline</label>
@@ -299,6 +297,27 @@
             class="w-full bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 rounded-lg px-4 py-3 text-sm font-serif resize-none focus:outline-none focus:border-amber-400"
             oninput="sezonHikayeKaydet('sinopsis',this.value)"></textarea>
         </div>
+        </div>
+        <div id="ss-alan-skarakterler" class="sezon-alan hidden p-6">
+          <h2 class="text-base font-semibold mb-2">Bu Sezondaki Karakterler</h2>
+          <p class="text-xs text-stone-400 mb-4 italic">Tüm bölümlerden otomatik derlenir.</p>
+          <div id="sezonKarIcerik" class="space-y-2"></div>
+        </div>
+        <div id="ss-alan-smekanlar" class="sezon-alan hidden p-6">
+          <h2 class="text-base font-semibold mb-2">Bu Sezondaki Mekanlar</h2>
+          <p class="text-xs text-stone-400 mb-4 italic">Tüm bölümlerden otomatik derlenir.</p>
+          <div id="sezonMekIcerik" class="space-y-2"></div>
+        </div>
+        <div id="ss-alan-sanaliz" class="sezon-alan hidden p-6 space-y-4">
+          <p class="text-xs text-stone-400 italic">Sezondaki tüm bölümlerin birleşik analizi.</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="szAnSayfa" class="text-3xl font-bold font-mono text-amber-600">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Toplam Sayfa</div></div>
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="szAnSure" class="text-3xl font-bold font-mono text-amber-600">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Toplam Dakika</div></div>
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="szAnBolum" class="text-3xl font-bold font-mono text-stone-600 dark:text-stone-300">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Bölüm</div></div>
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="szAnSahne" class="text-3xl font-bold font-mono text-stone-600 dark:text-stone-300">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Sahne</div></div>
+          </div>
+          <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Karakter Diyalog Dağılımı (Sezon)</h3><div id="szAnKarakterBars" class="space-y-2"></div></div>
+        </div>
       </div>
 
       <!-- Bölüm içerikleri -->
@@ -312,6 +331,9 @@
             <button onclick="bolumSekme('tretman')" id="bs-tretman" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Tretman</button>
             <button onclick="bolumSekme('senaryo')" id="bs-senaryo" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Senaryo</button>
             <button onclick="bolumSekme('kartlar')" id="bs-kartlar" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Kartlar</button>
+            <button onclick="bolumSekme('bkarakterler')" id="bs-bkarakterler" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Karakterler</button>
+            <button onclick="bolumSekme('bmekanlar')" id="bs-bmekanlar" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Mekanlar</button>
+            <button onclick="bolumSekme('banaliz')" id="bs-banaliz" class="bolum-sekme px-3 py-2.5 text-xs font-medium text-stone-500 border-b-2 border-transparent hover:text-stone-800 transition">Analiz</button>
           </div>
 
           <div id="bs-alan-tagline" class="bolum-alan p-6">
@@ -337,6 +359,30 @@
           </div>
           <div id="bs-alan-kartlar" class="bolum-alan hidden p-6">
             <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          </div>
+          <div id="bs-alan-bkarakterler" class="bolum-alan hidden p-6">
+            <h2 class="text-base font-semibold mb-4">Bu Bölümdeki Karakterler</h2>
+            <div id="bolumKarIcerik" class="space-y-2"></div>
+          </div>
+          <div id="bs-alan-bmekanlar" class="bolum-alan hidden p-6">
+            <h2 class="text-base font-semibold mb-4">Bu Bölümdeki Mekanlar</h2>
+            <div id="bolumMekIcerik" class="space-y-2"></div>
+          </div>
+          <div id="bs-alan-banaliz" class="bolum-alan hidden p-6 space-y-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="anSayfa" class="text-3xl font-bold font-mono text-amber-600">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Sayfa</div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="anSure" class="text-3xl font-bold font-mono text-amber-600">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Dakika</div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="anSahne" class="text-3xl font-bold font-mono text-stone-600 dark:text-stone-300">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Sahne</div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border text-center"><div id="anKelime" class="text-3xl font-bold font-mono text-stone-600 dark:text-stone-300">—</div><div class="text-xs text-stone-500 mt-1 uppercase tracking-wide">Kelime</div></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">İçerik Dağılımı</h3><div id="anIcerikBars" class="space-y-2"></div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Mekan Türü</h3><div id="anMekanTur" class="space-y-2"></div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Zaman Dağılımı</h3><div id="anZamanBars" class="space-y-2"></div></div>
+              <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Akt Yapısı</h3><div id="anAkt" class="space-y-2"></div></div>
+            </div>
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Karakter Diyalog Dağılımı</h3><div id="anKarakterBars" class="space-y-2"></div></div>
+            <div class="bg-stone-50 dark:bg-zinc-900 rounded-xl p-4 border"><h3 class="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-3">Mekan Kullanım Sıklığı</h3><div id="anMekanBars" class="space-y-2"></div></div>
           </div>
         </div>
       </div>
@@ -549,10 +595,7 @@ function navAc(isim){
   const ni=document.getElementById('ni-'+isim);
   if(ni) ni.classList.add('aktif');
   aktifNav=isim;
-  if(isim==='karakterler') cizKarakterDetay();
-  else if(isim==='mekanlar') cizMekanDetay();
-  else if(isim==='analiz') cizAnaliz();
-  const etiket={tagline:'Tagline',logline:'Logline',sinopsis:'Sinopsis',karakterler:'Karakterler',mekanlar:'Mekanlar',analiz:'Analiz'};
+  const etiket={tagline:'Tagline',logline:'Logline',sinopsis:'Sinopsis'};
   setBslk(etiket[isim]||isim, proje?(proje.hikaye?.[isim]||''):'', proje?proje.ad:'');
 }
 
@@ -796,6 +839,21 @@ function bolumSekme(isim){
   if(isim==='senaryo')cizScreenplay();
   else if(isim==='tretman')cizTretman();
   else if(isim==='kartlar')cizKartlar();
+  else if(isim==='bkarakterler')cizBolumKarakterler();
+  else if(isim==='bmekanlar')cizBolumMekanlar();
+  else if(isim==='banaliz')cizAnaliz();
+}
+
+function sezonSekme(isim){
+  document.querySelectorAll('.sezon-alan').forEach(el=>el.classList.add('hidden'));
+  document.querySelectorAll('.sezon-sekme').forEach(el=>{el.style.borderColor='transparent';el.style.color='';});
+  const alan=document.getElementById('ss-alan-'+isim);
+  if(alan)alan.classList.remove('hidden');
+  const sekme=document.getElementById('ss-'+isim);
+  if(sekme){sekme.style.borderColor='#f59e0b';sekme.style.color='#92400e';}
+  if(isim==='skarakterler')cizSezonKarakterler();
+  else if(isim==='smekanlar')cizSezonMekanlar();
+  else if(isim==='sanaliz')cizSezonAnaliz();
 }
 
 async function bolumHikayeKaydet(alan,deger){
@@ -990,6 +1048,111 @@ function cizKartlar(){
   el.innerHTML=ss.map((s,i)=>`<div class="kart rounded-lg p-4 cursor-pointer" onclick="bolumSekme('senaryo');setTimeout(()=>fokSahne(${s.idx}),50)"><div class="text-xs font-bold text-amber-700 dark:text-amber-300 mb-2">SAHNE ${i+1}</div><div class="font-mono uppercase text-sm font-semibold mb-2">${escH(s.baslik)}</div>${s.beat?`<div class="text-xs text-stone-600 dark:text-stone-300 italic font-serif">${escH(s.beat)}</div>`:`<div class="text-xs text-stone-400 italic">Beat eklenmemiş</div>`}<div class="text-xs text-stone-400 mt-2">${s.adet} blok</div></div>`).join('');
 }
 function fokSahne(idx){const el=fIdx(idx);if(el){el.focus();el.scrollIntoView({behavior:'smooth',block:'center'});}}
+
+
+// ===== Bölüm Karakterler/Mekanlar =====
+async function cizBolumKarakterler(){
+  const el=document.getElementById('bolumKarIcerik');
+  if(!el||!aktifBolumId)return;
+  // O bölümdeki karakterleri senaryo bloklarından çıkar
+  const adlar=new Set();
+  bloklar.forEach(b=>{if(b.tip==='karakter'){const ad=(b.metin||'').replace(/\([^)]*\)/g,'').trim().toUpperCase();if(ad)adlar.add(ad);}});
+  if(!adlar.size){el.innerHTML='<p class="text-sm text-stone-400 italic">Bu bölümde henüz karakter yok.</p>';return;}
+  const tumKar=await dbAll('karakterler','proje_id',aktifProjeId);
+  const sonuc=[...adlar].map(ad=>{const k=tumKar.find(k=>k.ad===ad);return k||{ad,aciklama:''};});
+  el.innerHTML=sonuc.map(k=>`
+    <div class="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 ${k.id?'cursor-pointer hover:border-amber-300':''}" ${k.id?`onclick="modalAc('karakter',${k.id},'${escA(k.ad)}',\`${escA(k.aciklama||'')}\`)"`:''}> 
+      <div><div class="font-mono font-semibold text-sm">${escH(k.ad)}</div>${k.aciklama?`<div class="text-xs text-stone-400 mt-0.5">${escH(k.aciklama)}</div>`:'<div class="text-xs text-stone-300 italic mt-0.5">Açıklama ekle…</div>'}</div>
+      ${k.id?'<span class="text-amber-400 text-xs">›</span>':''}
+    </div>`).join('');
+}
+
+async function cizBolumMekanlar(){
+  const el=document.getElementById('bolumMekIcerik');
+  if(!el||!aktifBolumId)return;
+  const SR=/^\s*(?:İÇ\.|DIŞ\.|INT\.|EXT\.|İÇ\.\/DIŞ\.|I\/E\.)\s*(?:GÜN\/GECE|GÜN|GECE|SABAH|AKŞAM)\.\s*(.+?)\s*$/i;
+  const adlar=new Set();
+  bloklar.forEach(b=>{if(b.tip==='sahne'){const m=SR.exec(b.metin||'');if(m)adlar.add(m[1].trim().toUpperCase());}});
+  if(!adlar.size){el.innerHTML='<p class="text-sm text-stone-400 italic">Bu bölümde henüz mekan yok.</p>';return;}
+  const tumMek=await dbAll('mekanlar','proje_id',aktifProjeId);
+  const sonuc=[...adlar].map(ad=>{const m=tumMek.find(m=>m.ad===ad);return m||{ad,aciklama:''};});
+  el.innerHTML=sonuc.map(m=>`
+    <div class="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 ${m.id?'cursor-pointer hover:border-amber-300':''}" ${m.id?`onclick="modalAc('mekan',${m.id},'${escA(m.ad)}',\`${escA(m.aciklama||'')}\`)"`:''}>
+      <div><div class="font-mono font-semibold text-sm">${escH(m.ad)}</div>${m.aciklama?`<div class="text-xs text-stone-400 mt-0.5">${escH(m.aciklama)}</div>`:'<div class="text-xs text-stone-300 italic mt-0.5">Açıklama ekle…</div>'}</div>
+      ${m.id?'<span class="text-amber-400 text-xs">›</span>':''}
+    </div>`).join('');
+}
+
+// ===== Sezon Karakterler/Mekanlar/Analiz =====
+async function cizSezonKarakterler(){
+  const el=document.getElementById('sezonKarIcerik');
+  if(!el||!aktifSezonId)return;
+  const bs=await dbAll('bolumler','sezon_id',aktifSezonId);
+  const adlar=new Set();
+  for(const b of bs){
+    (b.bloklar||[]).forEach(blk=>{if(blk.tip==='karakter'){const ad=(blk.metin||'').replace(/\([^)]*\)/g,'').trim().toUpperCase();if(ad)adlar.add(ad);}});
+  }
+  if(!adlar.size){el.innerHTML='<p class="text-sm text-stone-400 italic">Bu sezonda henüz karakter yok.</p>';return;}
+  const tumKar=await dbAll('karakterler','proje_id',aktifProjeId);
+  const sonuc=[...adlar].sort().map(ad=>{const k=tumKar.find(k=>k.ad===ad);return k||{ad,aciklama:''};});
+  el.innerHTML=sonuc.map(k=>`
+    <div class="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 ${k.id?'cursor-pointer hover:border-amber-300':''}" ${k.id?`onclick="modalAc('karakter',${k.id},'${escA(k.ad)}',\`${escA(k.aciklama||'')}\`)"`:''}>
+      <div><div class="font-mono font-semibold text-sm">${escH(k.ad)}</div>${k.aciklama?`<div class="text-xs text-stone-400 mt-0.5">${escH(k.aciklama)}</div>`:''}</div>
+      ${k.id?'<span class="text-amber-400 text-xs">›</span>':''}
+    </div>`).join('');
+}
+
+async function cizSezonMekanlar(){
+  const el=document.getElementById('sezonMekIcerik');
+  if(!el||!aktifSezonId)return;
+  const bs=await dbAll('bolumler','sezon_id',aktifSezonId);
+  const SR=/^\s*(?:İÇ\.|DIŞ\.|INT\.|EXT\.|İÇ\.\/DIŞ\.|I\/E\.)\s*(?:GÜN\/GECE|GÜN|GECE|SABAH|AKŞAM)\.\s*(.+?)\s*$/i;
+  const adlar=new Set();
+  for(const b of bs){
+    (b.bloklar||[]).forEach(blk=>{if(blk.tip==='sahne'){const m=SR.exec(blk.metin||'');if(m)adlar.add(m[1].trim().toUpperCase());}});
+  }
+  if(!adlar.size){el.innerHTML='<p class="text-sm text-stone-400 italic">Bu sezonda henüz mekan yok.</p>';return;}
+  const tumMek=await dbAll('mekanlar','proje_id',aktifProjeId);
+  const sonuc=[...adlar].sort().map(ad=>{const m=tumMek.find(m=>m.ad===ad);return m||{ad,aciklama:''};});
+  el.innerHTML=sonuc.map(m=>`
+    <div class="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 ${m.id?'cursor-pointer hover:border-amber-300':''}" ${m.id?`onclick="modalAc('mekan',${m.id},'${escA(m.ad)}',\`${escA(m.aciklama||'')}\`)"`:''}>
+      <div><div class="font-mono font-semibold text-sm">${escH(m.ad)}</div>${m.aciklama?`<div class="text-xs text-stone-400 mt-0.5">${escH(m.aciklama)}</div>`:''}</div>
+      ${m.id?'<span class="text-amber-400 text-xs">›</span>':''}
+    </div>`).join('');
+}
+
+async function cizSezonAnaliz(){
+  const el1=document.getElementById('szAnSayfa'),el2=document.getElementById('szAnSure');
+  const el3=document.getElementById('szAnBolum'),el4=document.getElementById('szAnSahne');
+  const elKar=document.getElementById('szAnKarakterBars');
+  if(!aktifSezonId)return;
+  const bs=await dbAll('bolumler','sezon_id',aktifSezonId);
+  let topSatir=0,topSahne=0,karDiyalog={};
+  for(const b of bs){
+    const bks=b.bloklar||[];
+    bks.forEach((blk,i)=>{
+      const len=(blk.metin||'').length,s=Math.max(1,Math.ceil(len/60));
+      if(blk.tip==='sahne'){topSatir+=s+1;topSahne++;}
+      else if(blk.tip==='aksiyon')topSatir+=s+0.5;
+      else if(blk.tip==='karakter'){topSatir+=1;const ad=(blk.metin||'').replace(/\([^)]*\)/g,'').trim().toUpperCase();if(ad){let j=i+1;while(j<bks.length&&(bks[j].tip==='diyalog'||bks[j].tip==='parantez')){if(bks[j].tip==='diyalog'){const dk=(bks[j].metin||'').trim().split(/\s+/).filter(Boolean).length;karDiyalog[ad]=(karDiyalog[ad]||0)+dk;}j++;}}}
+      else if(blk.tip==='diyalog')topSatir+=s;
+      else if(blk.tip==='parantez')topSatir+=1;
+      else if(blk.tip==='gecis')topSatir+=1.5;
+    });
+  }
+  const sp=topSatir/55;
+  if(el1)el1.textContent=sp.toFixed(1);
+  if(el2)el2.textContent=Math.round(sp);
+  if(el3)el3.textContent=bs.length;
+  if(el4)el4.textContent=topSahne;
+  if(elKar){
+    const ks=Object.entries(karDiyalog).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const kt=ks.reduce((s,[,v])=>s+v,0);
+    if(!ks.length){elKar.innerHTML='<p class="text-xs text-stone-400 italic">Veri yok</p>';return;}
+    const mx=Math.max(...ks.map(([,v])=>v));
+    elKar.innerHTML=ks.map(([n,d])=>`<div class="flex items-center gap-2"><div class="w-24 text-xs text-stone-600 text-right truncate shrink-0">${n}</div><div class="flex-1 bg-stone-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden"><div class="h-full rounded-full bg-amber-500" style="width:${mx>0?d/mx*100:0}%"></div></div><div class="text-xs text-stone-500 w-20 shrink-0">${d} kel. (${kt>0?Math.round(d/kt*100):0}%)</div></div>`).join('');
+  }
+}
 
 // ===== Kayıt =====
 function kGec(){clearTimeout(kayitTimer);kayitTimer=setTimeout(kayitYap,1200);}
