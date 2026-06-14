@@ -1022,7 +1022,7 @@ function blokEl(b,idx){
   const roz=document.createElement('span');roz.className='blok-tip-rozet';roz.textContent=BLOK_AD[b.tip]+' · Tab→';wrap.appendChild(roz);
   const ta=document.createElement('textarea');ta.className=`blok blok-${b.tip}`;ta.value=b.metin||'';ta.placeholder=BLOK_PH[b.tip];ta.rows=1;ta.dataset.idx=idx;
   aR(ta);
-  ta.addEventListener('focus',()=>{if(bloklar[idx].tip==='sahne')onGos(ta,idx);});
+  // Sahne önerisi focus'ta değil, yazmaya başlayınca açılır
   ta.addEventListener('input',e=>{
     bloklar[idx].metin=e.target.value;
     if(bloklar[idx].tip==='karakter'||bloklar[idx].tip==='sahne'){const p=e.target.selectionStart;e.target.value=e.target.value.toUpperCase();e.target.setSelectionRange(p,p);bloklar[idx].metin=e.target.value;}
