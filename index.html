@@ -240,8 +240,16 @@
     <!-- SAĞ: İçerik -->
     <div class="flex-1 min-w-0 p-5" id="sagIcerik">
 
-      <!-- Breadcrumb -->
-      <div id="breadcrumb" class="text-xs text-stone-400 mb-3 flex items-center gap-1"></div>
+      <!-- Başlık şeridi -->
+      <div id="icerikBaslik" class="mb-4 pb-3 border-b border-stone-200 dark:border-zinc-700" style="display:none">
+        <div class="text-xs text-stone-400 flex items-center gap-1 mb-1" id="breadcrumb"></div>
+        <div class="flex items-start justify-between">
+          <div>
+            <h1 id="icerikAd" class="text-xl font-serif font-semibold text-stone-800 dark:text-stone-100"></h1>
+            <p id="icerikTagline" class="text-sm text-stone-500 dark:text-stone-400 mt-0.5 italic" style="display:none"></p>
+          </div>
+        </div>
+      </div>
 
       <!-- Genel: Tagline -->
       <div id="alan-tagline" class="icerik-alani bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700 p-6">
@@ -544,13 +552,22 @@ function navAc(isim){
   if(isim==='karakterler') cizKarakterDetay();
   else if(isim==='mekanlar') cizMekanDetay();
   else if(isim==='analiz') cizAnaliz();
-  setBreadcrumb(isim);
+  const etiket={tagline:'Tagline',logline:'Logline',sinopsis:'Sinopsis',karakterler:'Karakterler',mekanlar:'Mekanlar',analiz:'Analiz'};
+  setBslk(etiket[isim]||isim, proje?(proje.hikaye?.[isim]||''):'', proje?proje.ad:'');
 }
 
-function setBreadcrumb(isim){
-  const el=document.getElementById('breadcrumb');
-  const etiket={tagline:'Tagline',logline:'Logline',sinopsis:'Sinopsis',karakterler:'Karakterler',mekanlar:'Mekanlar',analiz:'Analiz'};
-  el.innerHTML=`<span class="text-stone-300">${proje?escH(proje.ad):''}</span><span class="mx-1">›</span><span>${etiket[isim]||isim}</span>`;
+function setBslk(ad, tagline, breadcrumb){
+  const baslik = document.getElementById('icerikBaslik');
+  const adEl = document.getElementById('icerikAd');
+  const tlEl = document.getElementById('icerikTagline');
+  const bcEl = document.getElementById('breadcrumb');
+  if(baslik) baslik.style.display = ad ? 'block' : 'none';
+  if(adEl) adEl.textContent = ad||'';
+  if(tlEl){
+    if(tagline){tlEl.textContent=tagline;tlEl.style.display='block';}
+    else tlEl.style.display='none';
+  }
+  if(bcEl) bcEl.innerHTML = (breadcrumb||'').split(' › ').map((p,i,a)=>i<a.length-1?`<span class="text-stone-300">${escH(p)}</span><span class="mx-1">›</span>`:`<span>${escH(p)}</span>`).join('');
 }
 
 // ===== Yeni Proje Modal =====
@@ -574,6 +591,7 @@ async function anasayfa(){
   await dbAc();
   aktifProjeId=null;aktifSezonId=null;aktifBolumId=null;
   document.getElementById('ekranProje').style.display='none';
+  const ib=document.getElementById('icerikBaslik');if(ib)ib.style.display='none';
   document.getElementById('ekranAnasayfa').classList.remove('hidden');
   document.getElementById('panelToggleBtn').classList.add('hidden');
   document.getElementById('headerProjeAd').style.display='none';
@@ -698,8 +716,7 @@ async function sezonGenelAc(sid){
   document.querySelectorAll('.icerik-alani').forEach(el=>el.classList.remove('aktif'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('aktif'));
   document.getElementById('alan-sezon-genel').classList.add('aktif');
-  const el=document.getElementById('breadcrumb');
-  el.innerHTML=`<span class="text-stone-300">${escH(proje.ad)}</span><span class="mx-1">›</span><span>${sz?escH(sz.ad):''}</span><span class="mx-1">›</span><span>Genel</span>`;
+  setBslk(sz?sz.ad:'', sz&&sz.hikaye?sz.hikaye.tagline:'', proje.ad+' › '+(sz?sz.ad:''));
 }
 
 async function sezonHikayeKaydet(alan,deger){
@@ -763,8 +780,7 @@ async function bolumAc(bid,sid){
   document.getElementById('headerAyirac2').style.display='inline';
 
   const sz=sezonlar.find(s=>s.id===sid);
-  const el=document.getElementById('breadcrumb');
-  el.innerHTML=`<span class="text-stone-300">${escH(proje.ad)}</span><span class="mx-1">›</span><span class="text-stone-300">${sz?escH(sz.ad):''}</span><span class="mx-1">›</span><span>${escH(b.ad)}</span>`;
+  setBslk(b.ad, b.hikaye?b.hikaye.tagline:'', proje.ad+' › '+(sz?sz.ad:'')+' › '+b.ad);
 
   bolumSekme(aktifBolumSekme);
 }
