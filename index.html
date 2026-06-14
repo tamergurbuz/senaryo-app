@@ -451,6 +451,18 @@
   </div>
 </div>
 
+<!-- Rename Modal -->
+<div id="renameModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-32" onclick="renameModalKapat(event)">
+  <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-xl p-4 w-72" onclick="event.stopPropagation()">
+    <div class="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-2" id="renameBaslik">Ad değiştir</div>
+    <input id="renameInput" type="text" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400 bg-stone-50 dark:bg-zinc-900 mb-3">
+    <div class="flex justify-end gap-2">
+      <button onclick="renameModalKapat()" class="px-3 py-1.5 text-xs text-stone-500 hover:text-stone-800">İptal</button>
+      <button onclick="renameKaydet()" class="px-3 py-1.5 text-xs bg-amber-500 text-white rounded-lg hover:bg-amber-600">Tamam</button>
+    </div>
+  </div>
+</div>
+
 <!-- Karakter/Mekan Modal -->
 <div id="modal" class="hidden fixed inset-0 bg-black/40 z-30 flex items-center justify-center p-4" onclick="modalKapat(event)">
   <div class="bg-white dark:bg-zinc-800 rounded-xl p-6 max-w-md w-full" onclick="event.stopPropagation()">
@@ -1120,68 +1132,57 @@ async function cizBolumMekanlar(){
 function sezonAltBaslikDuzenle(sid){
   const sz = sezonlar.find(s=>s.id===sid);
   if(!sz) return;
-  // Sezon header'ındaki elementi bul
-  const header = document.querySelector(`[id="sok-${sid}"]`)?.closest('.sezon-header');
-  if(!header) return;
-  const mevcutAltBaslik = sz.altbaslik || '';
-  // Geçici input oluştur
-  const wrap = document.createElement('div');
-  wrap.className = 'flex items-center gap-1 flex-1 min-w-0';
-  wrap.innerHTML = `<span class="shrink-0 font-semibold text-sm">${escH(sz.ad)} —</span>`;
-  const input = document.createElement('input');
-  input.value = mevcutAltBaslik;
-  input.placeholder = 'Alt başlık…';
-  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-sm focus:outline-none flex-1 min-w-0';
-  wrap.appendChild(input);
-  // Header'daki flex-1 div'i geçici wrap ile değiştir
-  const flexDiv = header.querySelector('.flex-1');
-  if(flexDiv) flexDiv.replaceWith(wrap);
-  input.focus();
-  input.select();
-  async function kaydet(){
-    sz.altbaslik = input.value.trim();
+  renameAc(sz.ad + ' — alt başlık', sz.altbaslik||'', async(yeni)=>{
+    sz.altbaslik = yeni;
     await dbPut('sezonlar', sz);
     await cizSezonListesi();
     gosterKaydedildi();
-  }
-  input.addEventListener('blur', kaydet);
-  input.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){e.preventDefault();input.blur();}
-    if(e.key==='Escape'){sz.altbaslik=mevcutAltBaslik;cizSezonListesi();}
   });
 }
 
 async function bolumAdDuzenle(bid){
-  onKap(); // Sahne öneri kutusunu kapat
-  const el = document.getElementById('bad-'+bid);
-  if(!el) return;
-  const mevcutAd = el.textContent;
-  const input = document.createElement('input');
-  input.value = mevcutAd;
-  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-xs focus:outline-none w-full';
-  input.style.minWidth = '120px';
-  el.replaceWith(input);
-  input.focus();
-  input.select();
-  async function kaydet(){
-    const yeniAd = input.value.trim() || mevcutAd;
-    const b = await dbGet('bolumler', bid);
-    if(b && yeniAd !== mevcutAd){
-      await dbPut('bolumler', {...b, ad: yeniAd});
-      if(aktifBolumId === bid){
-        document.getElementById('headerBolumAd').textContent = yeniAd;
-      }
-    }
-    const sid = b ? b.sezon_id : aktifSezonId;
+  const b = await dbGet('bolumler', bid);
+  if(!b) return;
+  renameAc('Bölüm adı', b.ad, async (yeniAd)=>{
+    await dbPut('bolumler', {...b, ad: yeniAd});
+    if(aktifBolumId === bid) document.getElementById('headerBolumAd').textContent = yeniAd;
     await cizSezonListesi();
     gosterKaydedildi();
-  }
-  input.addEventListener('blur', kaydet);
-  input.addEventListener('keydown', e=>{
-    if(e.key==='Enter'){e.preventDefault();input.blur();}
-    if(e.key==='Escape'){input.value=mevcutAd;input.blur();}
   });
 }
+
+
+// ===== Rename Modal =====
+let renameCb = null;
+function renameAc(baslik, mevcutDeger, callback){
+  renameCb = callback;
+  document.getElementById('renameBaslik').textContent = baslik;
+  document.getElementById('renameInput').value = mevcutDeger;
+  document.getElementById('renameModal').classList.remove('hidden');
+  setTimeout(()=>{
+    const inp = document.getElementById('renameInput');
+    inp.focus(); inp.select();
+  }, 50);
+}
+function renameModalKapat(e){
+  if(e && e.target.id !== 'renameModal') return;
+  document.getElementById('renameModal').classList.add('hidden');
+  renameCb = null;
+}
+async function renameKaydet(){
+  const yeniAd = document.getElementById('renameInput').value.trim();
+  document.getElementById('renameModal').classList.add('hidden');
+  if(renameCb && yeniAd) await renameCb(yeniAd);
+  renameCb = null;
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !document.getElementById('renameModal').classList.contains('hidden')){
+    e.preventDefault(); renameKaydet();
+  }
+  if(e.key==='Escape' && !document.getElementById('renameModal').classList.contains('hidden')){
+    document.getElementById('renameModal').classList.add('hidden'); renameCb=null;
+  }
+});
 
 // ===== Sezon Karakterler/Mekanlar/Analiz =====
 async function cizSezonKarakterler(){
