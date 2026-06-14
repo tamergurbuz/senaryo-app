@@ -720,7 +720,7 @@ async function cizSezonListesi(){
     html+=`<div class="sezon-grup">
       <div class="sezon-header">
         <div class="flex items-center gap-1 flex-1 cursor-pointer" onclick="sezonGenelAc(${sz.id})">
-          <span>${escH(sz.ad)}</span>
+          <span id="szad-${sz.id}" ondblclick="event.stopPropagation();sezonAdDuzenle(${sz.id})" title="Çift tıkla: düzenle">${escH(sz.ad)}</span>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="event.stopPropagation();yeniBolumEkle(${sz.id})" class="text-amber-500 font-bold text-sm" title="Yeni bölüm">+</button>
@@ -730,7 +730,7 @@ async function cizSezonListesi(){
       <div class="sezon-body acik" id="sb-${sz.id}">
         ${bs.map(b=>`
           <div class="bolum-item ${b.id===aktifBolumId?'aktif':''}" id="bi-${b.id}" onclick="bolumAc(${b.id},${sz.id})">
-            <span class="flex-1 truncate">${escH(b.ad)}</span>
+            <span class="flex-1 truncate" id="bad-${b.id}" ondblclick="event.stopPropagation();bolumAdDuzenle(${b.id})" title="Çift tıkla: düzenle">${escH(b.ad)}</span>
             <button onclick="event.stopPropagation();bolumSil(${b.id},${sz.id})" class="opacity-0 hover:opacity-100 text-red-400 ml-1 text-xs">✕</button>
           </div>
         `).join('')}
@@ -1110,6 +1110,67 @@ async function cizBolumMekanlar(){
       <div><div class="font-mono font-semibold text-sm">${escH(m.ad)}</div>${m.aciklama?`<div class="text-xs text-stone-400 mt-0.5">${escH(m.aciklama)}</div>`:'<div class="text-xs text-stone-300 italic mt-0.5">Açıklama ekle…</div>'}</div>
       ${m.id?'<span class="text-amber-400 text-xs">›</span>':''}
     </div>`).join('');
+}
+
+
+// ===== İsim düzenleme =====
+function sezonAdDuzenle(sid){
+  const el = document.getElementById('szad-'+sid);
+  if(!el) return;
+  const mevcutAd = el.textContent;
+  const input = document.createElement('input');
+  input.value = mevcutAd;
+  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-sm font-semibold focus:outline-none w-full';
+  input.style.minWidth = '120px';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  async function kaydet(){
+    const yeniAd = input.value.trim() || mevcutAd;
+    const sz = sezonlar.find(s=>s.id===sid);
+    if(sz && yeniAd !== mevcutAd){
+      sz.ad = yeniAd;
+      await dbPut('sezonlar', sz);
+    }
+    await cizSezonListesi();
+    gosterKaydedildi();
+  }
+  input.addEventListener('blur', kaydet);
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){e.preventDefault();input.blur();}
+    if(e.key==='Escape'){input.value=mevcutAd;input.blur();}
+  });
+}
+
+async function bolumAdDuzenle(bid){
+  const el = document.getElementById('bad-'+bid);
+  if(!el) return;
+  const mevcutAd = el.textContent;
+  const input = document.createElement('input');
+  input.value = mevcutAd;
+  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-xs focus:outline-none w-full';
+  input.style.minWidth = '120px';
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+  async function kaydet(){
+    const yeniAd = input.value.trim() || mevcutAd;
+    const b = await dbGet('bolumler', bid);
+    if(b && yeniAd !== mevcutAd){
+      await dbPut('bolumler', {...b, ad: yeniAd});
+      if(aktifBolumId === bid){
+        document.getElementById('headerBolumAd').textContent = yeniAd;
+      }
+    }
+    const sid = b ? b.sezon_id : aktifSezonId;
+    await cizSezonListesi();
+    gosterKaydedildi();
+  }
+  input.addEventListener('blur', kaydet);
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){e.preventDefault();input.blur();}
+    if(e.key==='Escape'){input.value=mevcutAd;input.blur();}
+  });
 }
 
 // ===== Sezon Karakterler/Mekanlar/Analiz =====
