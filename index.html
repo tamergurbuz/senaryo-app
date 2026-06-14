@@ -737,7 +737,7 @@ async function cizSezonListesi(){
             <button onclick="event.stopPropagation();bolumSil(${b.id},${sz.id})" class="opacity-0 hover:opacity-100 text-red-400 ml-1 text-xs">✕</button>
           </div>
         `).join('')}
-        <div class="bolum-item text-amber-500 hover:text-amber-600 text-xs font-semibold" onclick="yeniBolumEkle(${sz.id})">+ Yeni Bölüm</div>
+
       </div>
     </div>`;
   }
@@ -1152,6 +1152,7 @@ function sezonAltBaslikDuzenle(sid){
 }
 
 async function bolumAdDuzenle(bid){
+  onKap(); // Sahne öneri kutusunu kapat
   const el = document.getElementById('bad-'+bid);
   if(!el) return;
   const mevcutAd = el.textContent;
