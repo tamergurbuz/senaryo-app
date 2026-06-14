@@ -718,9 +718,10 @@ async function cizSezonListesi(){
     const bs=await dbAll('bolumler','sezon_id',sz.id);
     bs.sort((a,b)=>(a.sira||0)-(b.sira||0));
     html+=`<div class="sezon-grup">
-      <div class="sezon-header">
+      <div class="sezon-header group">
         <div class="flex items-center gap-1 flex-1 cursor-pointer" onclick="sezonGenelAc(${sz.id})">
-          <span id="szad-${sz.id}" ondblclick="event.stopPropagation();sezonAdDuzenle(${sz.id})" title="Çift tıkla: düzenle">${escH(sz.ad)}</span>
+          <span id="szad-${sz.id}">${escH(sz.ad)}</span>
+          <button onclick="event.stopPropagation();sezonAdDuzenle(${sz.id})" class="ml-1 text-stone-300 hover:text-amber-500 transition opacity-0 group-hover:opacity-100" title="Adı düzenle" style="font-size:11px;line-height:1">✏</button>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="event.stopPropagation();yeniBolumEkle(${sz.id})" class="text-amber-500 font-bold text-sm" title="Yeni bölüm">+</button>
@@ -729,8 +730,9 @@ async function cizSezonListesi(){
       </div>
       <div class="sezon-body acik" id="sb-${sz.id}">
         ${bs.map(b=>`
-          <div class="bolum-item ${b.id===aktifBolumId?'aktif':''}" id="bi-${b.id}" onclick="bolumAc(${b.id},${sz.id})">
-            <span class="flex-1 truncate" id="bad-${b.id}" ondblclick="event.stopPropagation();bolumAdDuzenle(${b.id})" title="Çift tıkla: düzenle">${escH(b.ad)}</span>
+          <div class="bolum-item group ${b.id===aktifBolumId?'aktif':''}" id="bi-${b.id}" onclick="bolumAc(${b.id},${sz.id})">
+            <span class="flex-1 truncate" id="bad-${b.id}">${escH(b.ad)}</span>
+            <button onclick="event.stopPropagation();bolumAdDuzenle(${b.id})" class="text-stone-300 hover:text-amber-500 transition opacity-0 group-hover:opacity-100 shrink-0" title="Adı düzenle" style="font-size:11px">✏</button>
             <button onclick="event.stopPropagation();bolumSil(${b.id},${sz.id})" class="opacity-0 hover:opacity-100 text-red-400 ml-1 text-xs">✕</button>
           </div>
         `).join('')}
