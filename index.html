@@ -208,11 +208,11 @@
 
         <!-- Sezonlar accordion (sadece dizi) -->
         <div id="sezonlarBolum">
-          <div class="acc-header" onclick="accToggle('sezonlar')">
-            <span>Sezonlar</span>
+          <div class="acc-header">
+            <span class="flex-1 cursor-pointer" onclick="sezonlarEkraniAc()">Sezonlar</span>
             <div class="flex items-center gap-2">
-              <button onclick="event.stopPropagation();yeniSezonEkle()" class="text-amber-500 hover:text-amber-600 font-bold text-sm">+</button>
-              <span class="acc-ok" id="ok-sezonlar">›</span>
+              <button onclick="yeniSezonEkle()" class="text-amber-500 hover:text-amber-600 font-bold text-sm" title="Yeni sezon">+</button>
+              <span class="acc-ok cursor-pointer" id="ok-sezonlar" onclick="accToggle('sezonlar')">›</span>
             </div>
           </div>
           <div class="acc-body acik" id="acc-sezonlar">
@@ -841,6 +841,36 @@ function bolumSekme(isim){
   else if(isim==='bkarakterler')cizBolumKarakterler();
   else if(isim==='bmekanlar')cizBolumMekanlar();
   else if(isim==='banaliz')cizAnaliz();
+}
+
+
+function sezonlarEkraniAc(){
+  // Sağda tüm sezonları listele
+  document.querySelectorAll('.icerik-alani').forEach(el=>el.classList.remove('aktif'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('aktif'));
+  document.querySelectorAll('.bolum-item').forEach(el=>el.classList.remove('aktif'));
+  // Dinamik alan yok, alan-sezonlar-listesi oluştur
+  let alan = document.getElementById('alan-sezonlar-listesi');
+  if(!alan){
+    alan = document.createElement('div');
+    alan.id = 'alan-sezonlar-listesi';
+    alan.className = 'icerik-alani bg-white dark:bg-zinc-800 rounded-xl border border-stone-200 dark:border-zinc-700 p-6';
+    document.getElementById('sagIcerik').appendChild(alan);
+  }
+  alan.classList.add('aktif');
+  alan.innerHTML = `<h2 class="text-lg font-semibold mb-4">Sezonlar</h2>
+    <div class="space-y-3">
+    ${sezonlar.map(sz=>`
+      <div class="flex items-center justify-between p-4 rounded-xl bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:border-amber-300 transition" onclick="sezonGenelAc(${sz.id})">
+        <div>
+          <div class="font-semibold">${escH(sz.ad)}</div>
+          ${sz.hikaye&&sz.hikaye.tagline?`<div class="text-xs text-stone-400 mt-0.5 italic">${escH(sz.hikaye.tagline)}</div>`:''}
+        </div>
+        <span class="text-amber-400">›</span>
+      </div>
+    `).join('')}
+    </div>`;
+  setBslk('Sezonlar', '', proje?proje.ad:'');
 }
 
 function sezonSekme(isim){
