@@ -719,9 +719,10 @@ async function cizSezonListesi(){
     bs.sort((a,b)=>(a.sira||0)-(b.sira||0));
     html+=`<div class="sezon-grup">
       <div class="sezon-header group">
-        <div class="flex items-center gap-1 flex-1 cursor-pointer" onclick="sezonGenelAc(${sz.id})">
-          <span id="szad-${sz.id}">${escH(sz.ad)}</span>
-          <button onclick="event.stopPropagation();sezonAdDuzenle(${sz.id})" class="ml-1 text-stone-300 hover:text-amber-500 transition opacity-0 group-hover:opacity-100" title="Adı düzenle" style="font-size:11px;line-height:1">✏</button>
+        <div class="flex items-center gap-1 flex-1 cursor-pointer min-w-0" onclick="sezonGenelAc(${sz.id})">
+          <span class="shrink-0 font-semibold">${escH(sz.ad)}</span>
+          ${sz.altbaslik?`<span class="text-stone-400 shrink-0">—</span><span class="truncate text-stone-500">${escH(sz.altbaslik)}</span>`:''}
+          <button onclick="event.stopPropagation();sezonAltBaslikDuzenle(${sz.id})" class="ml-1 text-stone-300 hover:text-amber-500 transition opacity-0 group-hover:opacity-100 shrink-0" title="Alt başlık ekle" style="font-size:11px;line-height:1">✏</button>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="event.stopPropagation();yeniBolumEkle(${sz.id})" class="text-amber-500 font-bold text-sm" title="Yeni bölüm">+</button>
@@ -752,7 +753,7 @@ async function sezonGenelAc(sid){
   aktifSezonId=sid;aktifBolumId=null;
   document.querySelectorAll('.bolum-item').forEach(el=>el.classList.remove('aktif'));
   const sz=sezonlar.find(s=>s.id===sid);
-  document.getElementById('sezonGenelBaslik').textContent=(sz?escH(sz.ad):'')+' — Genel Bilgiler';
+  document.getElementById('sezonGenelBaslik').textContent=(sz?(sz.ad+(sz.altbaslik?' — '+sz.altbaslik:'')):'')+' — Genel Bilgiler';
   const h=(sz&&sz.hikaye)||{};
   document.getElementById('ic-sezon-tagline').value=h.tagline||'';
   document.getElementById('ic-sezon-logline').value=h.logline||'';
@@ -865,7 +866,7 @@ function sezonlarEkraniAc(){
     ${sezonlar.map(sz=>`
       <div class="flex items-center justify-between p-4 rounded-xl bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:border-amber-300 transition" onclick="sezonGenelAc(${sz.id})">
         <div>
-          <div class="font-semibold">${escH(sz.ad)}</div>
+          <div class="font-semibold">${escH(sz.ad)}${sz.altbaslik?' — '+escH(sz.altbaslik):''}</div>
           ${sz.hikaye&&sz.hikaye.tagline?`<div class="text-xs text-stone-400 mt-0.5 italic">${escH(sz.hikaye.tagline)}</div>`:''}
         </div>
         <span class="text-amber-400">›</span>
@@ -1116,31 +1117,37 @@ async function cizBolumMekanlar(){
 
 
 // ===== İsim düzenleme =====
-function sezonAdDuzenle(sid){
-  const el = document.getElementById('szad-'+sid);
-  if(!el) return;
-  const mevcutAd = el.textContent;
+function sezonAltBaslikDuzenle(sid){
+  const sz = sezonlar.find(s=>s.id===sid);
+  if(!sz) return;
+  // Sezon header'ındaki elementi bul
+  const header = document.querySelector(`[id="sok-${sid}"]`)?.closest('.sezon-header');
+  if(!header) return;
+  const mevcutAltBaslik = sz.altbaslik || '';
+  // Geçici input oluştur
+  const wrap = document.createElement('div');
+  wrap.className = 'flex items-center gap-1 flex-1 min-w-0';
+  wrap.innerHTML = `<span class="shrink-0 font-semibold text-sm">${escH(sz.ad)} —</span>`;
   const input = document.createElement('input');
-  input.value = mevcutAd;
-  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-sm font-semibold focus:outline-none w-full';
-  input.style.minWidth = '120px';
-  el.replaceWith(input);
+  input.value = mevcutAltBaslik;
+  input.placeholder = 'Alt başlık…';
+  input.className = 'bg-white dark:bg-zinc-700 border border-amber-400 rounded px-1 text-sm focus:outline-none flex-1 min-w-0';
+  wrap.appendChild(input);
+  // Header'daki flex-1 div'i geçici wrap ile değiştir
+  const flexDiv = header.querySelector('.flex-1');
+  if(flexDiv) flexDiv.replaceWith(wrap);
   input.focus();
   input.select();
   async function kaydet(){
-    const yeniAd = input.value.trim() || mevcutAd;
-    const sz = sezonlar.find(s=>s.id===sid);
-    if(sz && yeniAd !== mevcutAd){
-      sz.ad = yeniAd;
-      await dbPut('sezonlar', sz);
-    }
+    sz.altbaslik = input.value.trim();
+    await dbPut('sezonlar', sz);
     await cizSezonListesi();
     gosterKaydedildi();
   }
   input.addEventListener('blur', kaydet);
   input.addEventListener('keydown', e=>{
     if(e.key==='Enter'){e.preventDefault();input.blur();}
-    if(e.key==='Escape'){input.value=mevcutAd;input.blur();}
+    if(e.key==='Escape'){sz.altbaslik=mevcutAltBaslik;cizSezonListesi();}
   });
 }
 
