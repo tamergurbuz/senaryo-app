@@ -78,6 +78,9 @@
   .sezon-ok.acik{transform:rotate(90deg);}
   .sezon-body{overflow:hidden;max-height:0;transition:max-height .25s ease;}
   .sezon-body.acik{max-height:1000px;}
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+  .blok, textarea, .font-serif { font-family: 'Courier Prime', 'Courier New', monospace !important; }
+  textarea { font-size: 12pt !important; }
   .bolum-item{display:flex;align-items:center;padding:4px 8px 4px 28px;font-size:12px;
     cursor:pointer;color:#78716c;}
   .bolum-item:hover{background:#f5f5f4;color:#1c1917;}
@@ -107,7 +110,7 @@
       <button id="panelToggleBtn" onclick="panelToggle()" class="hidden p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-zinc-800 text-stone-500" title="Paneli gizle/göster">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
       </button>
-      <button onclick="anasayfa()" class="text-lg font-serif font-semibold hover:text-amber-600 transition">Senaryo</button>
+      <button onclick="anasayfa()" class="font-serif font-semibold hover:text-amber-600 transition" style="font-size:17px;text-shadow:0 1px 2px rgba(0,0,0,0.15),-0px -1px 1px rgba(255,255,255,0.8);letter-spacing:0.03em">Senaryo</button>
       <span class="text-stone-300 dark:text-stone-600" id="headerAyirac" style="display:none">›</span>
       <span id="headerProjeAd" class="text-sm font-medium text-stone-600 dark:text-stone-400" style="display:none"></span>
       <span class="text-stone-300 dark:text-stone-600" id="headerAyirac2" style="display:none">›</span>
@@ -115,23 +118,13 @@
     </div>
     <div class="flex items-center gap-3">
       <span id="taslakInd" class="taslak-ind">kaydedildi ✓</span>
-      <button id="temaBtn" class="p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-zinc-800">🌓</button>
+      <button onclick="ayarlarAc()" class="p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-zinc-800 text-stone-500" title="Ayarlar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
 </header>
-<!-- HEADER -->
-<header class="border-b border-stone-200 dark:border-zinc-800 sticky top-0 bg-stone-50/95 dark:bg-zinc-900/95 backdrop-blur z-20">
-  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <button onclick="anasayfa()" class="text-xl font-serif font-semibold hover:text-amber-600 transition">Senaryo</button>
-      <span id="projeYolu" class="text-sm text-stone-400"></span>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="taslakInd" class="taslak-ind">kaydedildi ✓</span>
-      <button id="temaBtn" class="p-2 rounded-lg hover:bg-stone-200 dark:hover:bg-zinc-800">🌓</button>
-    </div>
-  </div>
-</header>
+
 
 <!-- ANASAYFA -->
 <div id="ekranAnasayfa" class="max-w-5xl mx-auto px-6 py-10">
@@ -451,6 +444,137 @@
   </div>
 </div>
 
+<!-- Ayarlar Paneli -->
+<div id="ayarlarPanel" class="hidden fixed inset-0 bg-black/40 z-50 flex items-start justify-end" onclick="ayarlarKapat(event)">
+  <div class="bg-white dark:bg-zinc-800 h-full w-80 shadow-2xl overflow-y-auto" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between p-5 border-b border-stone-200 dark:border-zinc-700">
+      <h2 class="text-base font-semibold">Ayarlar</h2>
+      <button onclick="ayarlarKapat()" class="text-stone-400 hover:text-stone-700">✕</button>
+    </div>
+
+    <!-- Tema -->
+    <div class="p-5 border-b border-stone-100 dark:border-zinc-700">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-3">Görünüm</h3>
+      <div class="flex gap-2">
+        <button onclick="temaAyarla('acik')" id="tema-acik" class="flex-1 py-2 text-sm rounded-lg border-2 border-stone-200 dark:border-zinc-600 hover:border-amber-400 transition">☀️ Açık</button>
+        <button onclick="temaAyarla('koyu')" id="tema-koyu" class="flex-1 py-2 text-sm rounded-lg border-2 border-stone-200 dark:border-zinc-600 hover:border-amber-400 transition">🌙 Koyu</button>
+      </div>
+    </div>
+
+    <!-- Profil -->
+    <div class="p-5 border-b border-stone-100 dark:border-zinc-700">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-3">Profil</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-stone-500 mb-1">Ad Soyad</label>
+          <input id="ayar-ad" type="text" placeholder="Adınız" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="profilKaydet()">
+        </div>
+        <div>
+          <label class="block text-xs text-stone-500 mb-1">Unvan</label>
+          <input id="ayar-unvan" type="text" placeholder="Senarist, Yönetmen…" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="profilKaydet()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Analiz Ayarları -->
+    <div class="p-5 border-b border-stone-100 dark:border-zinc-700">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-1">Analiz Ayarları</h3>
+      <p class="text-xs text-stone-400 mb-3 italic">Story Architect & Hollywood standartları referans alınmıştır.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">1 sayfa = kaç dakika?</label>
+          <div class="flex items-center gap-2">
+            <input id="ayar-sayfa-dk" type="number" min="0.5" max="3" step="0.1" value="1" class="w-20 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            <span class="text-xs text-stone-400">dakika <span class="text-stone-300">(standart: 1)</span></span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">1 sayfada kaç satır?</label>
+          <div class="flex items-center gap-2">
+            <input id="ayar-satir-sayfa" type="number" min="40" max="70" step="1" value="55" class="w-20 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            <span class="text-xs text-stone-400">satır <span class="text-stone-300">(standart: 55)</span></span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Diyalog yoğunluğu uyarı eşiği</label>
+          <div class="flex items-center gap-2">
+            <input id="ayar-diyalog-esik" type="number" min="10" max="90" step="5" value="60" class="w-20 border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            <span class="text-xs text-stone-400">% <span class="text-stone-300">(standart: %60)</span></span>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Akt yapısı</label>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-xs text-stone-400 mb-1">Akt 1 (%)</label>
+              <input id="ayar-akt1" type="number" min="10" max="40" step="5" value="25" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            </div>
+            <div>
+              <label class="block text-xs text-stone-400 mb-1">Akt 2 (%)</label>
+              <input id="ayar-akt2" type="number" min="30" max="70" step="5" value="50" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            </div>
+            <div>
+              <label class="block text-xs text-stone-400 mb-1">Akt 3 (%)</label>
+              <input id="ayar-akt3" type="number" min="10" max="40" step="5" value="25" class="w-full border border-stone-200 dark:border-zinc-700 rounded-lg px-2 py-1.5 text-sm bg-stone-50 dark:bg-zinc-900 focus:outline-none focus:border-amber-400" oninput="analizAyarKaydet()">
+            </div>
+          </div>
+          <p class="text-xs text-stone-400 mt-1">Toplam 100 olmalı. <span id="aktToplamUyari" class="text-red-400 hidden">⚠ Toplam 100 değil!</span></p>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Film türüne göre hedef sayfa</label>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-stone-500">Kısa film</span>
+              <div class="flex items-center gap-1">
+                <input id="ayar-kisa-min" type="number" value="10" min="1" max="30" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">–</span>
+                <input id="ayar-kisa-max" type="number" value="40" min="10" max="60" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">sayfa</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-stone-500">Uzun metraj</span>
+              <div class="flex items-center gap-1">
+                <input id="ayar-uzun-min" type="number" value="90" min="60" max="120" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">–</span>
+                <input id="ayar-uzun-max" type="number" value="120" min="90" max="180" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">sayfa</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-stone-500">Dizi bölümü (30 dk)</span>
+              <div class="flex items-center gap-1">
+                <input id="ayar-dizi30-min" type="number" value="22" min="15" max="35" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">–</span>
+                <input id="ayar-dizi30-max" type="number" value="30" min="20" max="40" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">sayfa</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-stone-500">Dizi bölümü (60 dk)</span>
+              <div class="flex items-center gap-1">
+                <input id="ayar-dizi60-min" type="number" value="45" min="35" max="60" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">–</span>
+                <input id="ayar-dizi60-max" type="number" value="60" min="45" max="75" class="w-14 border border-stone-200 dark:border-zinc-600 rounded px-1.5 py-1 text-xs bg-stone-50 dark:bg-zinc-900 focus:outline-none" oninput="analizAyarKaydet()">
+                <span class="text-stone-400">sayfa</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uygulama -->
+    <div class="p-5">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-stone-400 mb-3">Uygulama</h3>
+      <div class="text-xs text-stone-400 space-y-1">
+        <div>Senaryo v1.0</div>
+        <div>Veriler tarayıcınızda saklanır.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Rename Modal -->
 <div id="renameModal" class="hidden fixed inset-0 bg-black/30 z-50 flex items-start justify-center pt-32" onclick="renameModalKapat(event)">
   <div class="bg-white dark:bg-zinc-800 rounded-xl shadow-xl p-4 w-72" onclick="event.stopPropagation()">
@@ -584,9 +708,99 @@ let bloklar=[], proje=null, sezonlar=[], bolumler=[], karakterler=[], mekanlar=[
 let kayitTimer=null, modalHedef=null, secilenTur='dizi';
 
 // ===== Tema =====
-document.getElementById('temaBtn').onclick=()=>{localStorage.setItem('tema',document.documentElement.classList.contains('dark')?'acik':'koyu');temaUygula();};
+
+// ===== Ayarlar =====
+let analizAyarlari = {
+  sayfaDk: 1, satirSayfa: 55, diyalogEsik: 60,
+  akt1: 25, akt2: 50, akt3: 25,
+  kisaMin:10, kisaMax:40, uzunMin:90, uzunMax:120,
+  dizi30Min:22, dizi30Max:30, dizi60Min:45, dizi60Max:60
+};
+let profil = {ad:'', unvan:''};
+
+function ayarlarYukle(){
+  try {
+    const a = JSON.parse(localStorage.getItem('analizAyarlari')||'{}');
+    analizAyarlari = {...analizAyarlari, ...a};
+    const p = JSON.parse(localStorage.getItem('profil')||'{}');
+    profil = {...profil, ...p};
+  } catch(e){}
+}
+
+function ayarlarAc(){
+  ayarlarYukle();
+  // Input değerlerini doldur
+  document.getElementById('ayar-sayfa-dk').value = analizAyarlari.sayfaDk;
+  document.getElementById('ayar-satir-sayfa').value = analizAyarlari.satirSayfa;
+  document.getElementById('ayar-diyalog-esik').value = analizAyarlari.diyalogEsik;
+  document.getElementById('ayar-akt1').value = analizAyarlari.akt1;
+  document.getElementById('ayar-akt2').value = analizAyarlari.akt2;
+  document.getElementById('ayar-akt3').value = analizAyarlari.akt3;
+  document.getElementById('ayar-kisa-min').value = analizAyarlari.kisaMin;
+  document.getElementById('ayar-kisa-max').value = analizAyarlari.kisaMax;
+  document.getElementById('ayar-uzun-min').value = analizAyarlari.uzunMin;
+  document.getElementById('ayar-uzun-max').value = analizAyarlari.uzunMax;
+  document.getElementById('ayar-dizi30-min').value = analizAyarlari.dizi30Min;
+  document.getElementById('ayar-dizi30-max').value = analizAyarlari.dizi30Max;
+  document.getElementById('ayar-dizi60-min').value = analizAyarlari.dizi60Min;
+  document.getElementById('ayar-dizi60-max').value = analizAyarlari.dizi60Max;
+  document.getElementById('ayar-ad').value = profil.ad;
+  document.getElementById('ayar-unvan').value = profil.unvan;
+  // Tema butonları
+  const koyu = document.documentElement.classList.contains('dark');
+  document.getElementById('tema-koyu').style.borderColor = koyu ? '#f59e0b' : '';
+  document.getElementById('tema-acik').style.borderColor = !koyu ? '#f59e0b' : '';
+  document.getElementById('ayarlarPanel').classList.remove('hidden');
+}
+
+function ayarlarKapat(e){
+  if(e && e.target.id !== 'ayarlarPanel') return;
+  document.getElementById('ayarlarPanel').classList.add('hidden');
+}
+
+function temaAyarla(t){
+  localStorage.setItem('tema', t);
+  temaUygula();
+  document.getElementById('tema-koyu').style.borderColor = t==='koyu' ? '#f59e0b' : '';
+  document.getElementById('tema-acik').style.borderColor = t==='acik' ? '#f59e0b' : '';
+}
+
+function analizAyarKaydet(){
+  analizAyarlari = {
+    sayfaDk: parseFloat(document.getElementById('ayar-sayfa-dk').value)||1,
+    satirSayfa: parseInt(document.getElementById('ayar-satir-sayfa').value)||55,
+    diyalogEsik: parseInt(document.getElementById('ayar-diyalog-esik').value)||60,
+    akt1: parseInt(document.getElementById('ayar-akt1').value)||25,
+    akt2: parseInt(document.getElementById('ayar-akt2').value)||50,
+    akt3: parseInt(document.getElementById('ayar-akt3').value)||25,
+    kisaMin: parseInt(document.getElementById('ayar-kisa-min').value)||10,
+    kisaMax: parseInt(document.getElementById('ayar-kisa-max').value)||40,
+    uzunMin: parseInt(document.getElementById('ayar-uzun-min').value)||90,
+    uzunMax: parseInt(document.getElementById('ayar-uzun-max').value)||120,
+    dizi30Min: parseInt(document.getElementById('ayar-dizi30-min').value)||22,
+    dizi30Max: parseInt(document.getElementById('ayar-dizi30-max').value)||30,
+    dizi60Min: parseInt(document.getElementById('ayar-dizi60-min').value)||45,
+    dizi60Max: parseInt(document.getElementById('ayar-dizi60-max').value)||60,
+  };
+  const toplam = analizAyarlari.akt1 + analizAyarlari.akt2 + analizAyarlari.akt3;
+  const uyari = document.getElementById('aktToplamUyari');
+  if(uyari) uyari.classList.toggle('hidden', toplam === 100);
+  localStorage.setItem('analizAyarlari', JSON.stringify(analizAyarlari));
+}
+
+let profilTimer = null;
+function profilKaydet(){
+  clearTimeout(profilTimer);
+  profilTimer = setTimeout(()=>{
+    profil.ad = document.getElementById('ayar-ad').value;
+    profil.unvan = document.getElementById('ayar-unvan').value;
+    localStorage.setItem('profil', JSON.stringify(profil));
+  }, 500);
+}
+
 function temaUygula(){document.documentElement.classList.toggle('dark',localStorage.getItem('tema')==='koyu');}
 temaUygula();
+ayarlarYukle();
 
 // ===== Accordion =====
 function accToggle(id){
@@ -665,7 +879,7 @@ async function anasayfa(){
     sayilar[p.id]=sz.length;
   }
   el.innerHTML=ps.map(p=>`
-    <div class="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition-shadow" onclick="projeAc(${p.id})">
+    <div class="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition-shadow group" onclick="projeAc(${p.id})">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-lg">${ikon[p.tur]||'🎬'}</span>
         <h3 class="font-serif text-base font-semibold truncate">${escH(p.ad)}</h3>
@@ -674,6 +888,25 @@ async function anasayfa(){
       <span class="text-xs text-stone-400">${tur[p.tur]||'Film'} · ${sayilar[p.id]||0} sezon</span>
     </div>
   `).join('');
+}
+
+async function projeSil(pid){
+  if(!confirm('Bu projeyi ve tüm içeriğini silmek istediğinize emin misiniz?')) return;
+  // Tüm bölümleri sil
+  const bs = await dbAll('bolumler','proje_id',pid);
+  for(const b of bs) await dbDel('bolumler',b.id);
+  // Tüm sezonları sil
+  const ss = await dbAll('sezonlar','proje_id',pid);
+  for(const s of ss) await dbDel('sezonlar',s.id);
+  // Karakterleri sil
+  const ks = await dbAll('karakterler','proje_id',pid);
+  for(const k of ks) await dbDel('karakterler',k.id);
+  // Mekanları sil
+  const ms = await dbAll('mekanlar','proje_id',pid);
+  for(const m of ms) await dbDel('mekanlar',m.id);
+  // Projeyi sil
+  await dbDel('projeler',pid);
+  anasayfa();
 }
 
 async function yeniProjeOlustur(){
@@ -1007,14 +1240,15 @@ function cizAnaliz(){
     if(b.tip==='sahne')ts+=s+1;else if(b.tip==='aksiyon')ts+=s+0.5;else if(b.tip==='karakter')ts+=1;else if(b.tip==='diyalog')ts+=s;else if(b.tip==='parantez')ts+=1;else if(b.tip==='gecis')ts+=1.5;});
   const sp=ts/55;
   document.getElementById('anSayfa').textContent=sp.toFixed(1);
-  document.getElementById('anSure').textContent=Math.round(sp);
+  document.getElementById('anSure').textContent=Math.round(sp*SAYFA_DK);
   document.getElementById('anSahne').textContent=sn;
   document.getElementById('anKelime').textContent=tk.toLocaleString('tr');
   function bar(id,list){const el=document.getElementById(id);if(!el)return;if(!list.length){el.innerHTML='<p class="text-xs text-stone-400 italic">Veri yok</p>';return;}const mx=Math.max(...list.map(s=>s.d));el.innerHTML=list.map(s=>`<div class="flex items-center gap-2"><div class="w-24 text-xs text-stone-600 dark:text-stone-400 text-right truncate shrink-0">${s.n}</div><div class="flex-1 bg-stone-200 dark:bg-zinc-700 rounded-full h-2 overflow-hidden"><div class="h-full rounded-full ${s.r||'bg-amber-500'}" style="width:${mx>0?s.d/mx*100:0}%"></div></div><div class="text-xs text-stone-500 w-16 shrink-0">${s.e}</div></div>`).join('');}
   bar('anIcerikBars',[{n:'Aksiyon',d:ak,r:'bg-blue-500',e:ak+' kel.'},{n:'Diyalog',d:dk,r:'bg-amber-500',e:dk+' kel.'}]);
   bar('anMekanTur',[{n:'İÇ.',d:ic,r:'bg-purple-500',e:ic+' sahne'},{n:'DIŞ.',d:ds,r:'bg-green-500',e:ds+' sahne'},{n:'İÇ./DIŞ.',d:id2,r:'bg-stone-400',e:id2+' sahne'}]);
   bar('anZamanBars',[{n:'Gündüz',d:gn,r:'bg-yellow-400',e:gn+' sahne'},{n:'Gece',d:gc,r:'bg-indigo-600',e:gc+' sahne'},{n:'Gün/Gece',d:gg,r:'bg-stone-400',e:gg+' sahne'}]);
-  const a1=Math.round(sp*0.25),a2=Math.round(sp*0.5),a3=Math.round(sp*0.25);
+  const _a1=analizAyarlari.akt1/100, _a2=analizAyarlari.akt2/100, _a3=analizAyarlari.akt3/100;
+  const a1=Math.round(sp*_a1),a2=Math.round(sp*_a2),a3=Math.round(sp*_a3);
   document.getElementById('anAkt').innerHTML=`<div class="flex rounded-full overflow-hidden h-4 mb-3"><div class="bg-blue-400 flex items-center justify-center text-white text-xs font-bold" style="width:25%">I</div><div class="bg-amber-400 flex items-center justify-center text-white text-xs font-bold" style="width:50%">II</div><div class="bg-green-400 flex items-center justify-center text-white text-xs font-bold" style="width:25%">III</div></div><div class="grid grid-cols-3 text-xs text-stone-500 text-center"><div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${a1}</span> sayfa<br>Kurgu</div><div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${a2}</span> sayfa<br>Gelişme</div><div><span class="font-mono font-semibold text-stone-700 dark:text-stone-300">${a3}</span> sayfa<br>Çözüm</div></div>`;
   const ks=Object.entries(kd).sort((a,b)=>b[1]-a[1]).slice(0,10),kt=ks.reduce((s,[,v])=>s+v,0);
   bar('anKarakterBars',ks.map(([n,d])=>({n,d,r:'bg-amber-500',e:d+' kel. ('+(kt>0?Math.round(d/kt*100):0)+'%)'})));
