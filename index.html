@@ -345,8 +345,9 @@
             <div id="tretmanListesi" class="space-y-4"></div>
           </div>
           <div id="bs-alan-senaryo" class="bolum-alan hidden">
-            <div class="px-4 py-2 border-b border-stone-200 dark:border-zinc-700 text-xs text-stone-500">
-              <b>Tab</b> blok tipi · <b>Enter</b> yeni satır
+            <div class="px-4 py-2 border-b border-stone-200 dark:border-zinc-700 flex items-center gap-4">
+              <span class="text-xs text-stone-400"><b>Tab</b> blok tipi · <b>Enter</b> yeni satır</span>
+              <input id="bolumWant" type="text" placeholder="Bu bölümde ana karakterin want'ı: …" class="flex-1 text-xs bg-transparent focus:outline-none text-stone-500 dark:text-stone-400 italic font-serif" style="font-family:'Courier Prime',monospace" oninput="bolumWantKaydet(this.value)">
             </div>
             <div id="screenplayAlani" class="p-8 mx-auto" style="min-height:60vh;max-width:720px;"></div>
           </div>
@@ -1073,6 +1074,9 @@ async function bolumAc(bid,sid){
   setBslk(b.ad, b.hikaye?b.hikaye.tagline:'', proje.ad+' › '+(sz?sz.ad:'')+' › '+b.ad);
 
   bolumSekme(aktifBolumSekme);
+  // Want alanını doldur
+  const wantEl = document.getElementById('bolumWant');
+  if(wantEl) wantEl.value = b.want||'';
 }
 
 function bolumSekme(isim){
@@ -1106,18 +1110,20 @@ function sezonlarEkraniAc(){
     document.getElementById('sagIcerik').appendChild(alan);
   }
   alan.classList.add('aktif');
-  alan.innerHTML = `<h2 class="text-lg font-semibold mb-4">Sezonlar</h2>
-    <div class="space-y-3">
+  const szNot = localStorage.getItem('sezonlar-not-'+aktifProjeId)||'';
+  alan.innerHTML = `
+    <textarea id="sezonlarNot" rows="2" placeholder="Proje notu, hatırlatıcı…" class="w-full bg-transparent text-sm font-serif resize-none focus:outline-none text-stone-500 dark:text-stone-400 border-b border-stone-100 dark:border-zinc-700 pb-3 mb-4" style="font-family:'Courier Prime',monospace">${escH(szNot)}</textarea>
+    <div class="space-y-2">
     ${sezonlar.map(sz=>`
-      <div class="flex items-center justify-between p-4 rounded-xl bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:border-amber-300 transition" onclick="sezonGenelAc(${sz.id})">
-        <div>
-          <div class="font-semibold">${escH(sz.ad)}${sz.altbaslik?' — '+escH(sz.altbaslik):''}</div>
-          ${sz.hikaye&&sz.hikaye.tagline?`<div class="text-xs text-stone-400 mt-0.5 italic">${escH(sz.hikaye.tagline)}</div>`:''}
-        </div>
-        <span class="text-amber-400">›</span>
+      <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-stone-50 dark:bg-zinc-900 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:border-amber-300 transition" onclick="sezonGenelAc(${sz.id})">
+        <div class="font-medium text-sm">${escH(sz.ad)}${sz.altbaslik?' — <span class="text-stone-400 font-normal">'+escH(sz.altbaslik)+'</span>':''}</div>
+        <span class="text-amber-400 text-xs">›</span>
       </div>
     `).join('')}
     </div>`;
+  document.getElementById('sezonlarNot').addEventListener('input', e=>{
+    localStorage.setItem('sezonlar-not-'+aktifProjeId, e.target.value);
+  });
   setBslk('Sezonlar', '', proje?proje.ad:'');
 }
 
@@ -1133,7 +1139,17 @@ function sezonSekme(isim){
   else if(isim==='sanaliz')cizSezonAnaliz();
 }
 
-async function bolumHikayeKaydet(alan,deger){
+async async function bolumWantKaydet(deger){
+  if(!aktifBolumId) return;
+  clearTimeout(kayitTimer);
+  kayitTimer = setTimeout(async()=>{
+    const b = await dbGet('bolumler', aktifBolumId);
+    await dbPut('bolumler', {...b, want: deger});
+    gosterKaydedildi();
+  }, 800);
+}
+
+function bolumHikayeKaydet(alan,deger){
   clearTimeout(kayitTimer);
   kayitTimer=setTimeout(async()=>{
     if(!aktifBolumId)return;
