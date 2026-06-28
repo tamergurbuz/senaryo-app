@@ -1291,12 +1291,13 @@ function blokEl(b,idx){
   ta.addEventListener('input',e=>{
     bloklar[idx].metin=e.target.value;
     if(bloklar[idx].tip==='karakter'||bloklar[idx].tip==='sahne'){const p=e.target.selectionStart;e.target.value=e.target.value.toUpperCase();e.target.setSelectionRange(p,p);bloklar[idx].metin=e.target.value;}
-    if(bloklar[idx].tip==='karakter')onGos(e.target,idx);else onKap();
+    if(bloklar[idx].tip==='karakter')onGos(e.target,idx);
     aR(e.target);kGec();
   });
   ta.addEventListener('blur',()=>{setTimeout(onKap,150);if(bloklar[idx]&&bloklar[idx].tip==='sahne')setTimeout(cizScreenplay,200);});
   ta.addEventListener('keydown',e=>{
     if(onAM()&&['ArrowDown','ArrowUp','Enter','Escape','Tab'].includes(e.key)){if(onKla(e)){e.preventDefault();return;}}
+    if(bloklar[idx].tip==='sahne'&&e.key.length===1)setTimeout(()=>onGos(e.target,idx),10);
     const su=bloklar[idx].tip,bos=e.target.value.trim()==='';
     if(e.key==='Tab'){e.preventDefault();
       if(su==='karakter'&&!bos){let mt=bloklar[idx].metin.trim();const m=mt.match(/^(.+?)\s*\(([^)]*)\)\s*$/);if(m){bloklar[idx].metin=`${m[1]} (${m[2]})`;cizScreenplay();setTimeout(()=>{const el=fIdx(idx);if(el){el.focus();el.setSelectionRange(m[1].length+2,m[1].length+2+m[2].length);}},10);}else{bloklar[idx].metin=`${mt} ()`;cizScreenplay();setTimeout(()=>{const el=fIdx(idx);if(el){el.focus();el.setSelectionRange(el.value.length-1,el.value.length-1);}},10);}kGec();return;}
