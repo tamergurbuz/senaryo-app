@@ -1073,7 +1073,7 @@ async function bolumAc(bid,sid){
   const sz=sezonlar.find(s=>s.id===sid);
   setBslk(b.ad, b.hikaye?b.hikaye.tagline:'', proje.ad+' › '+(sz?sz.ad:'')+' › '+b.ad);
 
-  bolumSekme(aktifBolumSekme);
+  bolumSekme('tagline');
   // Want alanını doldur
   const wantEl = document.getElementById('bolumWant');
   if(wantEl) wantEl.value = b.want||'';
