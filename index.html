@@ -879,7 +879,7 @@ async function anasayfa(){
     sayilar[p.id]=sz.length;
   }
   el.innerHTML=ps.map(p=>`
-    <div class="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition-shadow relative" onclick="projeAc(${p.id})"><button onclick="event.stopPropagation();projeSil(${p.id})" class="absolute top-3 right-3 text-stone-300 hover:text-red-500" style="font-size:13px">✕</button>
+    <div class="bg-white dark:bg-zinc-800 rounded-xl p-5 border border-stone-200 dark:border-zinc-700 cursor-pointer hover:shadow-md transition-shadow group" onclick="projeAc(${p.id})">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-lg">${ikon[p.tur]||'🎬'}</span>
         <h3 class="font-serif text-base font-semibold truncate">${escH(p.ad)}</h3>
