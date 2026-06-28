@@ -1291,7 +1291,7 @@ function blokEl(b,idx){
   ta.addEventListener('input',e=>{
     bloklar[idx].metin=e.target.value;
     if(bloklar[idx].tip==='karakter'||bloklar[idx].tip==='sahne'){const p=e.target.selectionStart;e.target.value=e.target.value.toUpperCase();e.target.setSelectionRange(p,p);bloklar[idx].metin=e.target.value;}
-    if(bloklar[idx].tip==='karakter'||bloklar[idx].tip==='sahne')onGos(e.target,idx);else onKap();
+    if(bloklar[idx].tip==='karakter')onGos(e.target,idx);else onKap();
     aR(e.target);kGec();
   });
   ta.addEventListener('blur',()=>{setTimeout(onKap,150);if(bloklar[idx]&&bloklar[idx].tip==='sahne')setTimeout(cizScreenplay,200);});
